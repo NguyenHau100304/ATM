@@ -40,7 +40,7 @@ void loginAdminMenu() {
 	gotoxy(g_loginRectX + 14, g_loginRectY + 7);
 	cout << "ADMIN LOGIN";
 
-	int userInputX = g_loginRectX + 5, userInputY = g_loginRectY + 9;
+	
 
 	gotoxy(userInputX, userInputY);
 	setTextBGColor(BLACK);
@@ -48,8 +48,6 @@ void loginAdminMenu() {
 	cout << "User:                         ";
 	
 
-
-	int passInputX = g_loginRectX + 5, passInputY = g_loginRectY + 12;
 	gotoxy(passInputX, passInputY);
 	setTextBGColor(BLACK);
 	setTextColor(RED);
@@ -61,6 +59,9 @@ void loginAdminMenu() {
 	cout << "Ngan Hang TNHH 5TV Dip Do Bank";
 
 	gotoxy(userInputX + 6, userInputY);
+
+
+
 }
 
 void loginUserMenu();
