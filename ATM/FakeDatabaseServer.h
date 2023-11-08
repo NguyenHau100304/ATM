@@ -4,6 +4,8 @@
 #include "Defines.h"
 
 
+ListAdministrator listAdmin;
+
 ListAccount listAccount;
 
 

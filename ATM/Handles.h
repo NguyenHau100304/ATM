@@ -77,26 +77,27 @@ public:
 
 class ListAdministrator {
 	LinkedList<Admin> list;
-	void load(string);
-	void save(string);
+	
 public:
 	ListAdministrator();
 	~ListAdministrator();
 	int getSize();
+	void load(string);
+	void save(string);
 	Admin getAdministratorAt(int);
 	Admin getAdministratorById(string);
 };
 
 class ListAccount {
 	LinkedList<User> list;
-	void load(string);
-	void save(string);
 public:
 	ListAccount();
 	~ListAccount();
 	void append(User);
 	int getSize();
-	
+	void load(string, string);
+	void save(string);
+	void saveCard(string);
 	User getUserAt(int);
 	User getUserById(string);
 	void removeUserAt(int);
@@ -108,20 +109,24 @@ public:
 
 class ListTransaction {
 	LinkedList<Transaction*> list;
+
+public:
 	void load(string);
 	void save(string);
-public:
 	ListTransaction();
 	ListTransaction(const ListTransaction&);
 	~ListTransaction();
 	int getSize();
 };
 
+
+
 class User {
 	friend class ListAccount;
 	friend class Transaction;
 	friend class WithrawATM;
 	friend class Transfer;
+	friend class Card;
 private:
 	string _id;
 	string _password;
@@ -137,6 +142,7 @@ public:
 	Money getAmount();
 	bool operator< (User);
 };
+
 
 
 

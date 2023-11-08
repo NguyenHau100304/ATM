@@ -21,7 +21,7 @@ User::User(string _strId, string _pw, Name _newname, Money _mn) {
 }
 
 User::User(const User& cp) {
-	_id = _id;
+	_id = cp._id;
 	_password = cp._password;
 	_fullname = cp._fullname;
 	_money = cp._money;
@@ -186,17 +186,39 @@ void ListAccount::append(User a) {
 }
 
 
-
-void ListAccount::load(string path) {
-	ifstream fin(path);
-	if (fin.is_open()) {
+void ListAccount::saveCard(string path) {
+	ofstream fout(path);
+	if (fout.is_open()) {
 		Node<User>* curr = list.getHead();
 		while (curr) {
-			getline(fin, curr->getData()._id);
-			fin >> curr->getData()._fullname;
-			getline(fin, curr->getData()._password);
-			fin >> curr->getData()._money;
+			fout << curr->getData()._id << '\n'
+				<< curr->getData()._password << '\n';
 			curr = curr->getNext();
+		}
+	}
+	else
+		throw runtime_error("Cannot open file\n");
+	fout.close();
+}
+
+
+void ListAccount::load(string path, string pathCard) {
+	ifstream fin(pathCard);
+	if (fin.is_open()) {
+		string id, pw;
+		while (getline(fin, id)) {
+			getline(fin, pw);
+			ifstream finAcc(path + id + ".txt");
+			User temp;
+			if (finAcc.is_open()) {
+				getline(finAcc, temp._id);
+				finAcc >> temp._fullname;
+				temp._password = pw;
+				finAcc >> temp._money;
+				finAcc.ignore();
+				list.addTail(temp);
+			}
+			finAcc.close();
 		}
 	}
 	else
@@ -204,21 +226,22 @@ void ListAccount::load(string path) {
 
 	fin.close();
 }
+
+
 void ListAccount::save(string path) {
-	ofstream fout(path);
-	if (fout.is_open()) {
-		Node<User>* curr = list.getHead();
-		while (curr) {
+	Node<User>* curr = list.getHead();
+	while (curr) {
+		ofstream fout(path + curr->getData()._id + ".txt");
+		if (fout.is_open()) {
 			fout << curr->getData()._id << '\n'
 				<< curr->getData()._fullname << '\n'
-				<< curr->getData()._password << '\n'
 				<< curr->getData()._money << '\n';
-			curr = curr->getNext();
-		}
+		}else
+			throw runtime_error("Cannot open file\n");
+		curr = curr->getNext();
+		fout.close();
 	}
-	else
-		throw runtime_error("Cannot open file\n");
-	fout.close();
+
 }
 
 
@@ -244,23 +267,24 @@ void ListTransaction::load(string path) {
 	ifstream fin(path);
 
 	if (fin.is_open()) {
-		Node<Transaction*>* curr = list._pHead;
-		while (curr) {
+		while(!fin.eof()){
 			string type;
 			fin >> type;
+			Transaction* temp;
 			if (type == "withrawatm") {
-				curr->_data = new WithrawATM;
-				curr->_data->load(fin);
+				temp = new WithrawATM;
+				temp->load(fin);
 			}
 			else {
-				curr->_data = new Transfer;
-				curr->_data->load(fin);
+				temp = new Transfer;
+				temp->load(fin);
 			}
-			curr = curr->_pNext;
+			list.addTail(temp);
 		}
 	}
 	else
 		throw runtime_error("Cannot open file\n");
+	fin.close();
 }
 void ListTransaction::save(string path) {
 	ofstream fout(path);
@@ -281,11 +305,11 @@ void ListTransaction::save(string path) {
 void ListAdministrator::load(string path) {
 	ifstream fin(path);
 	if (fin.is_open()) {
-		Node<Admin>* curr = list._pHead;
-		while (curr) {
-			getline(fin, curr->getData()._id);
-			getline(fin, curr->getData()._password);
-			curr = curr->getNext();
+		while (!fin.eof()) {
+			Admin temp;
+			getline(fin, temp._id);
+			getline(fin, temp._password);
+			list.addTail(temp);
 		}
 	}else
 		throw runtime_error("Cannot open file\n");
@@ -326,3 +350,5 @@ Admin ListAdministrator::getAdministratorById(string id) {
 	}
 	return Admin();
 }
+
+

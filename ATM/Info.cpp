@@ -108,7 +108,7 @@ string Money::getType() {
 }
 
 istream& operator>> (istream& _is, Money& _money) {
-	_is >> _money._amount;
+	_is >> _money._amount >> _money._type;
 	return _is;
 }
 

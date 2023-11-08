@@ -61,5 +61,17 @@
     <Text Include="ATM.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="Admin.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="TheTu.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="2156121682.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="0503285752.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

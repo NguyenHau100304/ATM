@@ -3,10 +3,24 @@
 #include "Display.h"
 #include "Defines.h"
 #include "GlobalVariable.h"
+#include "FakeDatabaseServer.h"
 #include <conio.h>
 #include <fstream>
 #include <string>
 #include <cstdlib>
+
+
+
+
+
+
+
+void init() {
+
+	listAdmin.load("Admin.txt");
+	listAccount.load("", "TheTu.txt");
+}
+
 
 void printArt(short x, short y, string path, int color, int bgcolor = LIGHT_GREEN) {
 	gotoxy(x, y);
@@ -40,7 +54,6 @@ void loginAdminMenu() {
 	gotoxy(g_loginRectX + 14, g_loginRectY + 7);
 	cout << "ADMIN LOGIN";
 
-	
 
 	gotoxy(userInputX, userInputY);
 	setTextBGColor(BLACK);
