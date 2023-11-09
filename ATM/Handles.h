@@ -7,6 +7,13 @@ using std::ifstream;
 using std::ofstream;
 
 class User;
+class Admin;
+bool isCurrent(const Admin, string);
+
+
+
+
+
 
 class Admin {
 	friend class ListAdministrator;
@@ -16,8 +23,10 @@ private:
 public:
 	Admin();
 	Admin(string, string);
+	Admin(const Admin&);
 	~Admin();
 	string getUser();
+	friend bool isCurrent(const Admin, string);
 };
 
 

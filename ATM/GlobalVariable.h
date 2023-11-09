@@ -2,11 +2,15 @@
 
 
 
-int g_loginRectX = 35;
-int g_loginRectY = 8;
-int g_loginRectWidth = 75 - 35;
-int g_loginRectHeight = 20;
+short g_loginRectX = 35;
+short g_loginRectY = 8;
+short g_loginRectWidth = 75 - 35;
+short g_loginRectHeight = 20;
+short g_adminMenuX = 17;
+short g_adminMenuY = 6;
+short g_adminMenuWidth = g_loginRectWidth * 2 - 5;
+short g_adminMenuHeight = g_loginRectHeight;
 
-int userInputX = g_loginRectX + 5, userInputY = g_loginRectY + 9;
+short userInputX = g_loginRectX + 11, userInputY = g_loginRectY + 9;
 
-int passInputX = g_loginRectX + 5, passInputY = g_loginRectY + 12;
+short passInputX = g_loginRectX + 10, passInputY = g_loginRectY + 12;

@@ -8,18 +8,18 @@
 using namespace std;
 
 template <typename DataType>
-void print(DataType output, int color = 7);
+void prshort(DataType output, short color = 7);
 
 
 
-void resizeConsole(int width, int height) {
+void resizeConsole(short width, short height) {
 	HWND console = GetConsoleWindow();
 	RECT r;
 	GetWindowRect(console, &r);
 	MoveWindow(console, r.left, r.top, width, height, TRUE);
 }
 
-void setConsoleWindowSize(int width, int height) {
+void setConsoleWindowSize(short width, short height) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD newSize;
 	newSize.X = width;
@@ -30,26 +30,26 @@ void setConsoleWindowSize(int width, int height) {
 }
 
 
-int getWindowMouseX() {
+short getWindowMouseX() {
 	POINT p;
 	GetCursorPos(&p);
 	return p.x;
 }
 
-int getWindowMouseY() {
+short getWindowMouseY() {
 	POINT p;
 	GetCursorPos(&p);
 	return p.y;
 }
 
-int getConsoleWindowPositionX() {
+short getConsoleWindowPositionX() {
 	HWND consoleWindow = GetConsoleWindow();
 	RECT rect;
 	GetWindowRect(consoleWindow, &rect);
 	return rect.left;
 }
 
-int getConsoleWindowPositionY() {
+short getConsoleWindowPositionY() {
 	HWND consoleWindow = GetConsoleWindow();
 	RECT rect;
 	GetWindowRect(consoleWindow, &rect);
@@ -57,7 +57,7 @@ int getConsoleWindowPositionY() {
 }
 
 
-int getCursorX() {
+short getCursorX() {
 	HANDLE hConsole;
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO screen_buffer_info;
@@ -66,7 +66,7 @@ int getCursorX() {
 
 }
 
-int getCursorY() {
+short getCursorY() {
 	HANDLE hConsole;
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO screen_buffer_info;
@@ -74,7 +74,7 @@ int getCursorY() {
 	return screen_buffer_info.dwCursorPosition.Y + 1;
 }
 
-void setTextBGColor(int color) {
+void setTextBGColor(short color) {
 	HANDLE hConsoleOutput;
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -90,7 +90,7 @@ void setTextBGColor(int color) {
 	SetConsoleTextAttribute(hConsoleOutput, wAttributes);
 }
 
-void gotoxy(int x, int y) {
+void gotoxy(short x, short y) {
 	static HANDLE h = NULL;
 	if (!h)
 		h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -104,7 +104,7 @@ void showCursor(bool cursorVisibility) {
 	SetConsoleCursorInfo(handle, &cursor);
 }
 
-void setTextColor(int color) {
+void setTextColor(short color) {
 	HANDLE hConsoleOutput;
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO screen_buffer_info;
@@ -119,18 +119,20 @@ void setTextColor(int color) {
 }
 
 
-void setConsoleBackgroundColor(int colorCode) {
+void setConsoleBackgroundColor(short colorCode) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hConsole, colorCode);
 }
 
-void createBox(int x1, int y1, int x2, int y2, int color) {
+void createBox(short x1, short y1, short w, short h, short color) {
 	setTextBGColor(color);
-
-	for (int i = y1; i <= y2; ++i) {
-		gotoxy(x1, i);
-		for (int j = x1; j <= x2; ++j)
+	gotoxy(x1, y1);
+	for (short i = 0; i < h; ++i) {
+		gotoxy(x1, y1 + i);
+		for (short j = 0; j < w; ++j) {
 			cout << ' ';
+		}
+			
 	}
 
 
@@ -142,7 +144,7 @@ char getKeyPressed()
 	HANDLE hStdin;
 	DWORD cNumRead;
 	INPUT_RECORD irInBuf[128];
-	int counter = 0;
+	short counter = 0;
 
 	hStdin = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -160,7 +162,7 @@ char getKeyPressed()
 			return '\0';
 		}
 
-		for (unsigned int i = 0; i < cNumRead; i++)
+		for (unsigned short i = 0; i < cNumRead; i++)
 		{
 			if (irInBuf[i].EventType == KEY_EVENT)  // Kiểm tra sự kiện từ bàn phím
 			{
@@ -196,7 +198,7 @@ void resetTextBGColor() {
 
 
 template <typename DataType>
-void print(DataType output, int color) {
+void prshort(DataType output, short color) {
 	setTextColor(color);
 	cout << output;
 	resetTextColor();

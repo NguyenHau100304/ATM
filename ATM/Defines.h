@@ -1,6 +1,30 @@
 #pragma once
 
 
+
+
+#define BACKSPACE 8
+
+#define ENTER 13
+
+#define ESC  27
+
+#define KEY_UP 72
+
+#define KEY_DOWN 80
+
+#define KEY_LEFT 75
+ 
+#define KEY_RIGHT 77
+
+#define PAGE_DOWN 81
+
+#define PAGE_UP 73
+
+#define SPACE  32
+
+#define TAB 9
+
 #define BLACK 0
 #define BLUE 1
 #define GREEN 2

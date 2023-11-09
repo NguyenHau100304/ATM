@@ -135,7 +135,7 @@
   <ItemGroup>
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Display.h" />
-    <ClInclude Include="FakeDatabaseServer.h" />
+    <ClInclude Include="TempMemory.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="GlobalVariable.h" />
     <ClInclude Include="Handles.h" />
@@ -144,12 +144,12 @@
     <ClInclude Include="Info.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="0503285752.txt" />
-    <Text Include="2156121682.txt" />
-    <Text Include="Admin.txt" />
     <Text Include="ATM.txt" />
+    <Text Include="data\0503285752.txt" />
+    <Text Include="data\2156121682.txt" />
+    <Text Include="data\Admin.txt" />
+    <Text Include="data\TheTu.txt" />
     <Text Include="NameBank.txt" />
-    <Text Include="TheTu.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

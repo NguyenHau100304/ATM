@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Account">
+      <UniqueIdentifier>{5413cf26-7227-4d02-b752-604648847695}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -47,7 +50,7 @@
     <ClInclude Include="GlobalVariable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FakeDatabaseServer.h">
+    <ClInclude Include="TempMemory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IndependentFunction.h">
@@ -61,17 +64,17 @@
     <Text Include="ATM.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="Admin.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="data\0503285752.txt">
+      <Filter>Resource Files\Account</Filter>
     </Text>
-    <Text Include="TheTu.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="data\2156121682.txt">
+      <Filter>Resource Files\Account</Filter>
     </Text>
-    <Text Include="2156121682.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="data\Admin.txt">
+      <Filter>Resource Files\Account</Filter>
     </Text>
-    <Text Include="0503285752.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="data\TheTu.txt">
+      <Filter>Resource Files\Account</Filter>
     </Text>
   </ItemGroup>
 </Project>

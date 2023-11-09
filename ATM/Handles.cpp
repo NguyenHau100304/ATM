@@ -4,11 +4,21 @@ using namespace std;
 Admin::Admin() : _id("Admin"), _password("123456") {}
 
 Admin::Admin(string _strId, string _strPw) : _id(_strId), _password(_strPw){}
+Admin::Admin(const Admin& a) {
+	_id = a._id;
+	_password = a._password;
+}
 
 Admin::~Admin(){}
 
 string Admin::getUser() {
 	return this->_id;
+}
+
+bool isCurrent(const Admin a,string pw){
+	if (a._password == pw)
+		return true;
+	return false;
 }
 
 User::User() : _id("00000000000000"), _password("123456"), _fullname(Name()), _money(Money()){}
@@ -220,6 +230,7 @@ void ListAccount::load(string path, string pathCard) {
 			}
 			finAcc.close();
 		}
+		//cout << "Daloadthanhcong";
 	}
 	else
 		throw runtime_error("Cannot open file\n");

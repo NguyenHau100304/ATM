@@ -9,3 +9,5 @@ bool compareUserbyName(User a, User b) {
 bool compareUserbyMoney(User a, User b) {
 	return a.getAmount().getAmount() < b.getAmount().getAmount();
 }
+
+
