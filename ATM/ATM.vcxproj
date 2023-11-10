@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Display.h" />
+    <ClInclude Include="Drawing.h" />
     <ClInclude Include="TempMemory.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="GlobalVariable.h" />
@@ -149,6 +150,7 @@
     <Text Include="data\2156121682.txt" />
     <Text Include="data\Admin.txt" />
     <Text Include="data\TheTu.txt" />
+    <Text Include="MenuAdmin.txt" />
     <Text Include="NameBank.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

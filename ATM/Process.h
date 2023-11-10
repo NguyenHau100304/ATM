@@ -1,15 +1,13 @@
-#pragma once
+﻿#pragma once
 #include "Handles.h"
-#include "Display.h"
 #include "Defines.h"
 #include "GlobalVariable.h"
 #include "TempMemory.h"
 #include "IndependentFunction.h"
+#include "Drawing.h"
+#include <iomanip>
 #include <conio.h>
-#include <fstream>
-#include <string>
 #include <cstdlib>
-
 
 
 
@@ -20,62 +18,75 @@ void init() {
 	SetConsoleTitleA("ATM");
 	listAdmin.load("./data/Admin.txt");
 	listAccount.load("./data/", "./data/TheTu.txt");
+	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+	clrscr();
+	gotoxy(g_loadingX, g_loadingY - 1);
+	cout << "Loading...";
+	drawBorder(g_loadingX, g_loadingY, g_loadingWidth, g_loadingHeight, 1, 15, BLUE);
+	drawLoading(g_loadingX + 1, g_loadingY + 1, g_loadingWidth - 1, RED, 5);
 }
 
-
-void printArt(short x, short y, string path, int color, int bgcolor = LIGHT_GREEN) {
-	gotoxy(x, y);
-	ifstream fin(path); 
-	if (fin.good()) {
-		while (!fin.eof()) {
-			string s;
-			std::getline(fin, s);
-			setTextColor(color);
-			setTextBGColor(bgcolor);
-			cout << s;
-			gotoxy(x, ++y);
-		}
+void waiting(int second) {
+	setConsoleBackgroundColor(LIGHT_GREEN);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(RED);
+	clrscr();
+	cout << "Ban nhap sai qua nhieu lan. Yeu cau doi " << second << " giay de dang nhap lai.\n";
+	cout << "Con lai:";
+	++second;
+	while (--second) {
+		gotoxy(9, 1);
+		cout << "           ";
+		gotoxy(9, 1);
+		cout << second << " giay";
+		showCursor(false);
+		Sleep(1000);
 	}
-	else
-		throw runtime_error("Cannot open file");
-	resetTextColor();
-
+	showCursor(true);
 }
-
-
-void drawBorder(short x, short y, short width, short height, char c = ' ', short color = WHITE, short bgcolor = BLACK) {
-	setTextBGColor(bgcolor);
-	setTextColor(color);
-	for (int i = 0; i < height; ++i) {
-		gotoxy(x, y + i);
-		if (i == 0 || i == height - 1)
-			for (int j = 0; j < width; ++j)
-				cout << c;
-		else {
-			cout << c;
-			gotoxy(x + width - 1, y + i);
-			cout << c;
-		}
-	}
-
-
-
-}
-
-
 
 
 void adminMenu() {
-	clrscr();
 	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 	clrscr();
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
-
-
+	gotoxy(g_loadingX, g_loadingY - 1);
+	cout << "Loading...";
+	drawBorder(g_loadingX, g_loadingY, g_loadingWidth, g_loadingHeight, 1, 15, BLUE);
+	drawLoading(g_loadingX + 1, g_loadingY + 1, g_loadingWidth - 1, RED, 1);
+	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+	clrscr();
 	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth,g_adminMenuHeight, LIGHT_BLUE);
 	setTextBGColor(LIGHT_GREEN);
-	//printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_BLUE);
-//	drawBorder(g_adminMenuX - 1, g_adminMenuY - 1, g_adminMenuWidth + 2, g_adminMenuHeight + 2, '*', WHITE, GRAY);
+
+	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+/***********************************************
+
+				CREATE BUTTON
+
+************************************************/
+
+	POINT BUTTON[5] = {
+		{g_adminMenuX + 6, g_adminMenuY + 2}, 	{g_adminMenuX + 40, g_adminMenuY + 2},
+		{g_adminMenuX + 6, g_adminMenuY + 8},   {g_adminMenuX + 40, g_adminMenuY + 8},
+		{g_adminMenuX + 23, g_adminMenuY + 15}
+	};
+	string nameButton[5]{
+		"XEM DANH SACH TAI KHOAN",
+		"THEM TAI KHOAN",
+		"XOA TAI KHOAN",
+		"MO KHOA TAI KHOAN",
+		"THOAT"
+	};
+
+	for (int i = 0; i < 5; ++i) {
+		drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, WHITE, LIGHT_BLUE);
+		gotoxy(BUTTON[i].x + 1 + (14 - nameButton[i].length() / 2), BUTTON[i].y + 1);
+		cout << nameButton[i];
+	}
+
+
+	
+
 
 	_getch();
 
@@ -124,10 +135,10 @@ void loginAdminMenu() {
 	setTextColor(RED);
 	cout << "PIN:                          ";
 
-	gotoxy(g_loginRectX + 5, g_loginRectY + 18);
+	gotoxy(g_loginRectX + 8, g_loginRectY + 18);
 	setTextBGColor(LIGHT_BLUE);
 	setTextColor(WHITE);
-	cout << "Ngan Hang TNHH 5TV Dip Do Bank";
+	cout << "BANG HAI TAC MU ROM BANK";
 
 	gotoxy(userInputX, userInputY);
 /***************************************************************
@@ -163,10 +174,15 @@ void loginAdminMenu() {
 						}
 						else {
 							if (++wrongPw == 3) {
+								if (++wrongTime == 2) {
+									clrscr();
+									cout << "Ban da nhap sai qua nhieu lan!!!\n";
+									_getch();
+									exit(0);
+								}
 								clrscr();
-								cout << "Da thu qua nhieu lan!. Yeu cau doi 30s de nhap lai!!!\n";
-								_getch();
-								exit(0);
+								waiting(30);
+								goto LOGIN;
 							}
 							else {
 								Beep(600,200);

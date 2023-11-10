@@ -10,7 +10,11 @@ short g_adminMenuX = 17;
 short g_adminMenuY = 6;
 short g_adminMenuWidth = g_loginRectWidth * 2 - 5;
 short g_adminMenuHeight = g_loginRectHeight;
+short g_loadingX = g_adminMenuX, g_loadingY = g_adminMenuY + 3;
+short g_loadingWidth = g_adminMenuWidth, g_loadingHeight = 3;
 
 short userInputX = g_loginRectX + 11, userInputY = g_loginRectY + 9;
 
 short passInputX = g_loginRectX + 10, passInputY = g_loginRectY + 12;
+
+short wrongTime = 0;

@@ -56,6 +56,9 @@
     <ClInclude Include="IndependentFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Drawing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="NameBank.txt">
@@ -75,6 +78,9 @@
     </Text>
     <Text Include="data\TheTu.txt">
       <Filter>Resource Files\Account</Filter>
+    </Text>
+    <Text Include="MenuAdmin.txt">
+      <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
 </Project>
