@@ -18,3 +18,5 @@ short userInputX = g_loginRectX + 11, userInputY = g_loginRectY + 9;
 short passInputX = g_loginRectX + 10, passInputY = g_loginRectY + 12;
 
 short wrongTime = 0;
+
+

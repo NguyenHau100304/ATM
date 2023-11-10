@@ -1,4 +1,5 @@
 #include "Handles.h"
+
 using namespace std;
 
 Admin::Admin() : _id("Admin"), _password("123456") {}
@@ -253,6 +254,26 @@ void ListAccount::save(string path) {
 		fout.close();
 	}
 
+}
+
+void ListAccount::display(int start, int end, short x, short y) {
+	Node<User>* current = list._pHead;
+	int index = 0;
+	while (current) {
+		if (index >= start && index <= end) {
+			gotoxy(x + 1, y);
+			cout << index + 1;
+			gotoxy(x + 5, y);
+			cout << current->_data._id;
+			gotoxy(x + 20, y);
+			cout << current->_data.getName();
+			gotoxy(x + 45, y);
+			cout << current->_data.getAmount();
+			++y;
+		}
+		current = current->_pNext;
+		index++;
+	}
 }
 
 

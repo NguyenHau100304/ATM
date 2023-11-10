@@ -10,4 +10,7 @@ bool compareUserbyMoney(User a, User b) {
 	return a.getAmount().getAmount() < b.getAmount().getAmount();
 }
 
+bool isNumber(char c) {
+	return c >= '0' && c <= '9';
+}
 

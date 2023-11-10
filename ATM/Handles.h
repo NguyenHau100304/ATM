@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Display.h"
 #include "Info.h"
 #include "Structure.h"
 #include <fstream>
@@ -111,6 +112,7 @@ public:
 	User getUserById(string);
 	void removeUserAt(int);
 	void removeUserById(string);
+	void display(int, int, short, short);
 	void sortIf(bool (*func)(User, User)) {
 		list.sortIf(func);
 	}

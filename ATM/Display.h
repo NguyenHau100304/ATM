@@ -124,18 +124,16 @@ void setConsoleBackgroundColor(short colorCode) {
 	SetConsoleTextAttribute(hConsole, colorCode);
 }
 
-void createBox(short x1, short y1, short w, short h, short color) {
+void createBox(short x1, short y1, int w, short h, short color) {
 	setTextBGColor(color);
 	gotoxy(x1, y1);
 	for (short i = 0; i < h; ++i) {
 		gotoxy(x1, y1 + i);
-		for (short j = 0; j < w; ++j) {
+		for (int j = 0; j < w; ++j) {
 			cout << ' ';
 		}
 			
 	}
-
-
 	setTextBGColor(BLACK);
 }
 

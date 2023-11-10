@@ -146,12 +146,15 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ATM.txt" />
-    <Text Include="data\0503285752.txt" />
-    <Text Include="data\2156121682.txt" />
+    <Text Include="data\4801103024.txt" />
+    <Text Include="data\4801103028.txt" />
+    <Text Include="data\4801103062.txt" />
+    <Text Include="data\4801103071.txt" />
     <Text Include="data\Admin.txt" />
     <Text Include="data\TheTu.txt" />
     <Text Include="MenuAdmin.txt" />
     <Text Include="NameBank.txt" />
+    <Text Include="Space.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
