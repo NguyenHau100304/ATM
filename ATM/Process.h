@@ -42,7 +42,7 @@ void waiting(int second) {
 void printListUsers() {
 	loadingScreen("Loading data...", 10);
 	drawTableList();
-	printListPerPage(1);
+	printListPerPage(2);
 	_getch();
 	
 }
