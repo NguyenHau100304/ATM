@@ -128,7 +128,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Handles.cpp" />
     <ClCompile Include="Info.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>

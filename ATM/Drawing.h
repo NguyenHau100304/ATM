@@ -77,12 +77,7 @@ void loadingScreen(string title, short delay) {
 }
 
 void printListPerPage(int page) {
-
-
-
-
-
-
+	listAccount.display(25 * (page - 1), 25 * page, 0, 6);
 }
 void drawTableList() {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_INTENSITY);

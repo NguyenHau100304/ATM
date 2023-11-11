@@ -3,7 +3,6 @@
 #include "GlobalVariable.h"
 #include "TempMemory.h"
 #include "Drawing.h"
-#include <iomanip>
 #include <conio.h>
 #include <cstdlib>
 
@@ -43,7 +42,7 @@ void waiting(int second) {
 void printListUsers() {
 	loadingScreen("Loading data...", 10);
 	drawTableList();
-	listAccount.display(0, 5, 0, 4);
+	printListPerPage(1);
 	_getch();
 	
 }
