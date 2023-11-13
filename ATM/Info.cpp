@@ -1,5 +1,5 @@
 #include "Info.h"
-
+#define modulo 1000000007
 using namespace std;
 
 Name::Name() : _fullname("No Name") {}
@@ -92,7 +92,7 @@ float Money::getAmount() {
 
 float Money::getMoney() {
 	if (_type == "USD")
-		return roundf(float(_amount / 24.580) * 100) / 100;
+		return float(_amount / 24.580);
 	else
 		return _amount;
 }
@@ -107,6 +107,6 @@ istream& operator>> (istream& _is, Money& _money) {
 }
 
 ostream& operator<< (ostream& _os, Money _money) {
-	_os << _money.getMoney() << ' ' << _money._type;
+	_os << fixed << std::setprecision(2) << _money.getMoney() << ' ' << _money._type;
 	return _os;
 }

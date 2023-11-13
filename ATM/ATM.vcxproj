@@ -135,7 +135,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Drawing.h" />
-    <ClInclude Include="TempMemory.h" />
+    <ClInclude Include="TempMemory.cpp" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="GlobalVariable.h" />
     <ClInclude Include="Handles.h" />

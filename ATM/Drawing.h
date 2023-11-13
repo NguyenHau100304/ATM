@@ -76,7 +76,29 @@ void loadingScreen(string title, short delay) {
 	drawLoading(g_loadingX + 1, g_loadingY + 1, g_loadingWidth - 1, RED, 1);
 }
 
-void printListPerPage(int page) {
+void printListPerPage(int page, int sort) {
+	POINT TAGs[3] = {
+		{20, 3},
+		{45, 3},
+		{69, 3}
+	};
+	string NAMETAGs[2] = {
+		"HO VA TEN",
+		"SO DU"
+	};
+	for (int i = 0; i < 2; ++i) {
+		setTextBGColor(LIGHT_BLUE);
+		setTextColor(WHITE);
+		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
+		cout << NAMETAGs[i];
+	}
+	if(sort > 1){
+		setTextBGColor(LIGHT_GREEN);
+		setTextColor(WHITE);
+		gotoxy(TAGs[sort - 2].x + ((TAGs[sort - 1].x - TAGs[sort - 2].x) / 2) - NAMETAGs[sort - 2].length() / 2 - 1, TAGs[sort - 2].y);
+		cout << NAMETAGs[sort - 2];
+	}
+	setTextBGColor(LIGHT_BLUE);
 	short x = 0, y = 5;
 	for (int i = 0; i < 24; ++i) {
 		gotoxy(x + 1, y);
@@ -86,11 +108,12 @@ void printListPerPage(int page) {
 		gotoxy(x + 20, y);
 		cout << setfill(24);
 		gotoxy(x + 45, y);
-		cout << setfill(14);
+		cout << setfill(23);
+		gotoxy(x + 69, y);
+		cout << setfill(9);
 		++y;
 	}
-	listAccount.sortIf(compareUserbyName);
-	listAccount.display(23 * (page - 1), 23 * page, 0, 5);
+	listAccount.display(23 * (page - 1), 23 * page, 0, 5, listIdBlocked);
 }
 void drawTableList() {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_INTENSITY);
@@ -98,32 +121,39 @@ void drawTableList() {
 	clrscr();
 	setTextColor(RED);
 	gotoxy(19, 0);
-	cout << "DANH SACH CAC TAI KHOAN";
+	cout << "  DANH SACH CAC TAI KHOAN";
+	gotoxy(4, 1);
+	setTextColor(GREEN);
+	cout << "RIGHT/LEFT turn page - PAGE UP/PAGE DOWN change sort - ESC quit";
+
+
 	setTextColor(BLACK);
 	gotoxy(0, 2);
-	drawBorder(0, 2, 60, 28, 1, WHITE, LIGHT_BLUE);
+	drawBorder(0, 2, 82, 28, 1, WHITE, LIGHT_BLUE);
 	gotoxy(0, 4);
 	cout << char(204); // nga 3 trai
-	gotoxy(59, 4);
+	gotoxy(81, 4);
 	cout << char(185); // nga 3 phai
 	gotoxy(1, 4);
-	for (int i = 1; i <= 58; ++i)
+	for (int i = 1; i <= 80; ++i)
 		cout << char(205);
-	POINT TAGs[5] = {
+	POINT TAGs[6] = {
 		{1, 3},//STT
 		{5, 3},//ID
 		{20, 3},//NAME
 		{45, 3},//MONEY
-		{59, 3}
+		{69, 3},
+		{81, 3}
 	};
-	string NAMETAGs[4] = {
+	string NAMETAGs[5] = {
 		"STT",
 		"ID",
 		"HO VA TEN",
-		"SO DU"
+		"SO DU",
+		"TINH TRANG"
 	};
-	for (int i = 0; i < 4; ++i) {
-		if (i < 3) {
+	for (int i = 0; i < 5; ++i) {
+		if (i < 4) {
 			gotoxy(TAGs[i + 1].x - 1, TAGs[i].y - 1);
 			cout << char(203);
 			for (int j = 0; j < 26; ++j) {

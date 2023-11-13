@@ -46,6 +46,7 @@ public:
 	LinkedList();
 	LinkedList(LinkedList<DataType>& other);
 	~LinkedList();
+	void load(string path);
 	void addHead(DataType data);
 	void addTail(DataType data);
 	Node<DataType>* getHead();
@@ -160,6 +161,19 @@ LinkedList<DataType>::~LinkedList() {
 		delete temp;
 	}
 }
+template <class DataType>
+void LinkedList<DataType>::load(string path) {
+	clear();
+	ifstream fin(path);
+	if (fin.is_open()) {
+		DataType temp;
+		while (getline(fin, temp))
+			addHead(temp);
+	}
+	else
+		throw runtime_error("Cannot open file");
+}
+
 template <class DataType>
 Node<DataType>* LinkedList<DataType>::getHead() {
 	return _pHead;

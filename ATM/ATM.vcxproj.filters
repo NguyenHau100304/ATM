@@ -47,14 +47,14 @@
     <ClInclude Include="GlobalVariable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TempMemory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IndependentFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Drawing.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TempMemory.cpp">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

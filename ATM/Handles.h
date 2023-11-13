@@ -15,9 +15,6 @@ bool isCurrent(const Admin, string);
 
 
 
-
-
-
 class Admin {
 	friend class ListAdministrator;
 private:
@@ -112,9 +109,10 @@ public:
 	void saveCard(string);
 	User getUserAt(int);
 	User getUserById(string);
+	bool isHasUser(string);
 	void removeUserAt(int);
 	void removeUserById(string);
-	void display(int, int, short, short);
+	void display(int, int, short, short, LinkedList<string>&);
 	void sortIf(bool (*func)(User, User)) {
 		list.sortIf(func);
 	}
@@ -148,7 +146,7 @@ private:
 	ListTransaction _trans;
 public:
 	User();
-	User(string, string, Name, Money);
+	User(string, string, Name, Money, bool);
 	User(const User&);
 	string getId();
 	Name getName();
@@ -183,7 +181,7 @@ bool isCurrent(const Admin a, string pw) {
 
 User::User() : _id("00000000000000"), _password("123456"), _fullname(Name()), _money(Money()) {}
 
-User::User(string _strId, string _pw, Name _newname, Money _mn) {
+User::User(string _strId, string _pw, Name _newname, Money _mn, bool active) {
 	_id = _strId;
 	_password = _pw;
 	_fullname = _newname;
@@ -197,8 +195,6 @@ User::User(const User& cp) {
 	_money = cp._money;
 }
 
-
-
 string User::getId() {
 	return this->_id;
 }
@@ -210,6 +206,7 @@ Name User::getName() {
 Money User::getAmount() {
 	return this->_money;
 }
+
 
 
 bool User::operator< (User _a) {
@@ -319,6 +316,17 @@ User ListAccount::getUserById(string id) {
 	}
 	return User();
 }
+bool ListAccount::isHasUser(string id) {
+	Node<User>* curr = list._pHead;
+
+	while (curr) {
+		if (curr->getData()._id == id)
+			return true;
+		curr = curr->_pNext;
+	}
+	return false;
+}
+
 void ListAccount::removeUserAt(int index) {
 	list.removeAt(index);
 }
@@ -417,24 +425,38 @@ void ListAccount::save(string path) {
 
 }
 
-void ListAccount::display(int start, int end, short x, short y) {
+void ListAccount::display(int start, int end, short x, short y, LinkedList<string> &listIdBlocked) {
 	Node<User>* current = list._pHead;
 	int index = 0;
-	while (current) {
-		if (index >= start && index <= end) {
-			gotoxy(x + 1, y);
-			cout << index + 1;
-			gotoxy(x + 5, y);
-			cout << current->_data._id;
-			gotoxy(x + 20, y);
-			cout << current->_data.getName();
-			gotoxy(x + 45, y);
-			cout << setw(10) << right << current->_data.getAmount();
-			++y;
+		while (current) {
+			if (index >= start && index <= end) {
+				bool isBlock = false;
+				if (listIdBlocked.search(current->_data._id))
+				{
+					isBlock = true;
+					setTextColor(RED);
+				}
+				else {
+					setTextColor(WHITE);
+				}
+				gotoxy(x + 1, y);
+				cout << index + 1;
+				gotoxy(x + 5, y);
+				cout << current->_data._id;
+				gotoxy(x + 20, y);
+				cout << current->_data.getName();
+				gotoxy(x + 45, y);
+				cout << setw(19) << right << current->_data._money;
+				gotoxy(x + 69, y);
+				if (isBlock)
+					cout << "KHOA";
+				else
+					cout << "HOAT DONG";
+				++y;
+			}
+			current = current->_pNext;
+			index++;
 		}
-		current = current->_pNext;
-		index++;
-	}
 }
 
 

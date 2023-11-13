@@ -1,6 +1,7 @@
 #pragma once
 
 
+long long modulo = 1e9 + 7;
 
 short g_loginRectX = 35;
 short g_loginRectY = 8;

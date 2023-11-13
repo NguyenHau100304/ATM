@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Defines.h"
 #include "GlobalVariable.h"
-#include "TempMemory.h"
+#include "TempMemory.cpp"
+#include "IndependentFunction.h"
 #include "Drawing.h"
 #include <conio.h>
 #include <cstdlib>
@@ -15,12 +16,10 @@ void init() {
 	resizeConsole(1100, 650);
 	listAdmin.load("./data/Admin.txt");
 	listAccount.load("./data/", "./data/TheTu.txt");
+	listIdBlocked.load("./data/AccountBlocked/ALL.txt");
 	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 	clrscr();
 	loadingScreen("Loading...", 5);
-
-
-
 }
 
 void waiting(int second) {
@@ -47,21 +46,56 @@ void waiting(int second) {
 void printListUsers() {
 	loadingScreen("Loading data...", 10);
 	drawTableList();
-	printListPerPage(1);
-	int page = 1;
+
+	int page = 1, chooseSort = 1;
 	int maxPage = (listAccount.getSize() / 24) + 1;
+
+	listAccount.sortIf(compareUserbyName);
+	printListPerPage(1, 1);
+	gotoxy(83, 28);
+	cout << "Trang " << page << '/' << maxPage;
+	showCursor(false);
+	
 	while (true) {
 		if (_kbhit()) {
 			char c = _getch();
+
+			if (c == ESC)
+				return;
+
 			if (c == -32)
 				c = _getch();
+
+			if (c == PAGE_DOWN || c == PAGE_UP)
+				if (++chooseSort == 4)
+					chooseSort = 1;
+
+
 			if (c == KEY_RIGHT)
 				if (++page == maxPage + 1)
 					page = 1;
 			if (c == KEY_LEFT)
 				if (--page == 0)
 					page = maxPage;
-			printListPerPage(page);
+
+			switch (chooseSort)
+			{
+			case 1:
+				listAccount.sortIf(compareUserbyName);
+				break;
+			case 2:
+				listAccount.sortIf(compareUserbyId);
+				break;
+			case 3:
+				listAccount.sortIf(compareUserbyMoney);
+				break;
+			default:
+				break;
+			}
+			gotoxy(83, 28);
+			cout << "Trang " << page << '/' << maxPage;
+			printListPerPage(page, chooseSort);
+			showCursor(false);
 		}
 	}
 	_getch();
@@ -113,12 +147,12 @@ ADMINMENU:
 		drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, YELLOW, LIGHT_GREEN);
 		showCursor(false);
 		if (_kbhit) {
-			Beep(600, 50);
 			char c = _getch();
 			if (c == 32 || c == -32) {
+				Beep(600, 50);
 				if (c == -32)
 					c = _getch();
-				if(c == KEY_RIGHT)
+				if(c == KEY_RIGHT || c == 32)
 					if(++choose == 5)
 						choose = 0;
 				if (c == KEY_LEFT)
@@ -127,6 +161,7 @@ ADMINMENU:
 
 			}
 			else if(c == '\r'){
+				Beep(800, 50);
 				if (choose == 0) {
 					printListUsers();
 					goto ADMINMENU;
@@ -163,12 +198,12 @@ void userMenu();
 
 
 void loginAdminMenu() {
-	LOGIN:
+LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 	clrscr();
 	printArt(17, 0, "NameBank.txt", RED, YELLOW);
 
-	
+
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_BLUE);
 	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_BLUE);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, GRAY);
@@ -183,7 +218,7 @@ void loginAdminMenu() {
 	setTextBGColor(BLACK);
 	setTextColor(RED);
 	cout << "User:                         ";
-	
+
 
 	gotoxy(passInputX - 5, passInputY);
 	setTextBGColor(BLACK);
@@ -197,12 +232,12 @@ void loginAdminMenu() {
 
 	gotoxy(userInputX, userInputY);
 	showCursor(true);
-/***************************************************************
+	/***************************************************************
 
-						KEYBOARD EVENT
+							KEYBOARD EVENT
 
-****************************************************************/
-	
+	****************************************************************/
+
 	char c = '\0';
 	short wrongPw = 0;
 	string inputId = "", inputPass = "";
@@ -212,6 +247,10 @@ void loginAdminMenu() {
 			setTextBGColor(BLACK);
 			setTextColor(WHITE);
 			c = _getch();
+
+			if (c == ESC)
+				return;
+
 			if (c == 0 || c == 224)
 				c = _getch();
 
@@ -225,10 +264,11 @@ void loginAdminMenu() {
 				else {
 					if (c == '\r') {
 						if (isCurrent(listAdmin.getAdministratorById(inputId), inputPass)) {
+							Beep(800, 50);
 							adminMenu();
 							goto LOGIN;
 						}
-						else {
+						else if(!inputId.empty() && !inputPass.empty()) {
 							if (++wrongPw == 3) {
 								if (++wrongTime == 2) {
 									clrscr();
@@ -241,12 +281,14 @@ void loginAdminMenu() {
 								goto LOGIN;
 							}
 							else {
-								Beep(600,200);
+								Beep(1000,200);
 								gotoxy(passInputX - 2, passInputY + 1);
 								setTextBGColor(LIGHT_BLUE);
 								setTextColor(RED);
 								cout << "Ban da nhap sai mat khau!";
+								showCursor(false);
 								_getch();
+								showCursor(true);
 								gotoxy(passInputX - 2, passInputY + 1);
 								cout << "                         ";
 								gotoxy(passInputX + inputPass.length(), passInputY);
@@ -266,7 +308,7 @@ void loginAdminMenu() {
 					cout << "\b  \b";
 					inputId.pop_back();
 				}
-				else if (!inputPass.empty()) {
+				else if (!isInputId && !inputPass.empty()) {
 					cout << "\b  \b";
 					inputPass.pop_back();
 				}
@@ -297,7 +339,9 @@ void loginAdminMenu() {
 
 }
 
-void loginUserMenu();
+void loginUserMenu() {
+
+}
 
 
 void loadListUsers();
@@ -314,9 +358,9 @@ __INIT__:
 	setTextBGColor(LIGHT_GREEN);
 	printArt(17, 0, "NameBank.txt", RED, YELLOW);
 
-	drawBorder(g_initMenuX + 23, g_initMenuY + 2, 28, 3, '*', RED, LIGHT_BLUE);
+	drawBorder(g_initMenuX + 25, g_initMenuY + 2, 28, 3, '*', YELLOW, LIGHT_BLUE);
 
-	gotoxy(g_initMenuX + 25, g_initMenuY + 3);
+	gotoxy(g_initMenuX + 27, g_initMenuY + 3);
 	setTextColor(RED);
 	setTextBGColor(LIGHT_BLUE);
 	cout << "CHON HINH THUC DANG NHAP";
@@ -342,9 +386,9 @@ __INIT__:
 		drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, YELLOW, LIGHT_GREEN);
 		showCursor(false);
 		if (_kbhit) {
-			Beep(600, 50);
 			char c = _getch();
 			if (c == 32 || c == -32) {
+				Beep(600, 50);
 				if (c == -32)
 					c = _getch();
 				if (c == KEY_RIGHT || c == 32)
@@ -356,9 +400,20 @@ __INIT__:
 
 			}
 			else if (c == '\r') {
+				Beep(800, 50);
 				if (choose == 0) {
 					loginAdminMenu();
 					goto __INIT__;
+				}
+				else if (choose == 1) {
+					loginUserMenu();
+					goto __INIT__;
+				}
+				else {
+					resetTextBGColor();
+					resetTextColor();
+					clrscr();
+					return;
 				}
 			}
 		}
