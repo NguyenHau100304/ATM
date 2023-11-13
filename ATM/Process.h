@@ -101,6 +101,123 @@ void printListUsers() {
 	_getch();
 	
 }
+
+
+void addUserToList() {
+	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+	clrscr();
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_BLUE);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
+	setTextBGColor(LIGHT_GREEN);
+
+	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+
+	
+	drawBorder(g_initMenuX + 25, g_initMenuY + 1, 28, 3, 1, RED, LIGHT_BLUE);
+	gotoxy(g_adminMenuX + 27, g_adminMenuY + 2);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_BLUE);
+	cout << "NHAP THONG TIN TAI KHOAN";
+
+
+	setTextBGColor(LIGHT_BLUE);
+	setTextColor(BLACK);
+
+	POINT hoverText[] = {
+		{g_adminMenuX + 12, g_adminMenuY + 5},
+		{g_adminMenuX + 12, g_adminMenuY + 8},
+		{g_adminMenuX + 12, g_adminMenuY + 11},
+		{g_adminMenuX + 12, g_adminMenuY + 14}
+	};
+	string titleHoverText[4] = {
+		"ID: ",
+		"HO VA TEN: ",
+		"PASSWORD: ",
+		"SO DU: "
+	};
+	for (int i = 0; i < 4; ++i) {
+		setTextBGColor(LIGHT_BLUE);
+		gotoxy(hoverText[i].x, hoverText[i].y);
+		cout << setw(12) << right << titleHoverText[i];
+		setTextBGColor(WHITE);
+		gotoxy(hoverText[i].x + 12, hoverText[i].y);
+		cout << setfill(30);
+
+		hoverText[i].x += 12;
+	}
+
+	gotoxy(hoverText[3].x + 18, hoverText[3].y + 2);
+	setTextBGColor(YELLOW);
+	setTextColor(RED);
+	cout << "TAO TAI KHOAN";
+	
+	//----------------------------------------------------------------
+	setTextBGColor(WHITE);
+	setTextColor(BLACK);
+	gotoxy(hoverText[0].x, hoverText[0].y);
+	showCursor(true);
+	char c = '\0';
+	string input[4] = {
+		"", "", "", ""
+	};
+	int curr = 0;
+	while (true) {
+		if (_kbhit()) {
+			setTextBGColor(BLACK);
+			setTextColor(WHITE);
+			c = _getch();
+
+			// ESC
+			if (c == ESC)
+				return;
+			// KY TU KHOA
+			if (c == 0 || c == 224)
+				c = _getch();
+			// CHUYEN DONG
+			if (c == '\r' || c == -32) {
+				if (c == -32)
+					c = _getch();
+				if (c == KEY_UP)
+					if (--curr == -1)
+						curr = 4;
+				if (c == KEY_DOWN || c == '\r')
+					if (++curr == 5)
+						curr = 0;
+				
+				// MOVE CURSOR
+				if (curr != 4) {
+					gotoxy(hoverText[3].x + 18, hoverText[3].y + 2);
+					setTextBGColor(YELLOW);
+					setTextColor(RED);
+					cout << "TAO TAI KHOAN";
+					gotoxy(hoverText[curr].x + input[curr].length(), hoverText[curr].y);
+				}
+				else {
+					gotoxy(hoverText[3].x + 18, hoverText[3].y + 2);
+					setTextBGColor(GREEN);
+					setTextColor(RED);
+					cout << "TAO TAI KHOAN";
+				}
+			}// NHAP KY TU
+			else {
+
+
+
+
+
+
+
+			}
+		}
+	}
+
+
+
+
+	_getch();
+}
+
+
 void adminMenu() {
 	loadingScreen("Loading profile...", 0);
 ADMINMENU:
@@ -166,7 +283,10 @@ ADMINMENU:
 					printListUsers();
 					goto ADMINMENU;
 				}
-
+				else if (choose == 1) {
+					addUserToList();
+					goto ADMINMENU;
+				}
 
 			}
 		}
