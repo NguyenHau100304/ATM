@@ -6,7 +6,7 @@ Name::Name() : _fullname("No Name") {}
 
 Name::Name(const Name& _cpyName) {
 	this->_fullname = _cpyName._fullname;
-	this->formatName();
+	//this->formatName();
 }
 
 Name::Name(string _strName) {
@@ -65,18 +65,12 @@ ostream& operator<< (ostream& _os, Name _name) {
 
 bool Name::operator< (Name _b) {
 	string a = this->getFirstName(), b = _b.getFirstName();
-	int i = 0;
-	while (i < a.length() && i < b.length()) {
-		if (a[i] != b[i])
-			return a[i] < b[i];
-	}
-
-	a = this->getLastName();
-	b = _b.getLastName();
-	i = 0;
-	while (i < a.length() && i < b.length()) {
-		if (a[i] != b[i])
-			return a[i] < b[i];
+	if (a != b)
+		return a < b;
+	else {
+		a = this->getLastName();
+		b = _b.getLastName();
+		return a < b;
 	}
 	return false;
 }

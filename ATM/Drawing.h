@@ -77,6 +77,19 @@ void loadingScreen(string title, short delay) {
 }
 
 void printListPerPage(int page) {
+	short x = 0, y = 5;
+	for (int i = 0; i < 24; ++i) {
+		gotoxy(x + 1, y);
+		cout << "   ";
+		gotoxy(x + 5, y);
+		cout << setfill(14);
+		gotoxy(x + 20, y);
+		cout << setfill(24);
+		gotoxy(x + 45, y);
+		cout << setfill(14);
+		++y;
+	}
+	listAccount.sortIf(compareUserbyName);
 	listAccount.display(23 * (page - 1), 23 * page, 0, 5);
 }
 void drawTableList() {

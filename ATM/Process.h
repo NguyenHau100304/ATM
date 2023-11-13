@@ -18,6 +18,9 @@ void init() {
 	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 	clrscr();
 	loadingScreen("Loading...", 5);
+
+
+
 }
 
 void waiting(int second) {
@@ -39,10 +42,28 @@ void waiting(int second) {
 	showCursor(true);
 }
 
+
+
 void printListUsers() {
 	loadingScreen("Loading data...", 10);
 	drawTableList();
-	printListPerPage(2);
+	printListPerPage(1);
+	int page = 1;
+	int maxPage = (listAccount.getSize() / 24) + 1;
+	while (true) {
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == -32)
+				c = _getch();
+			if (c == KEY_RIGHT)
+				if (++page == maxPage + 1)
+					page = 1;
+			if (c == KEY_LEFT)
+				if (--page == 0)
+					page = maxPage;
+			printListPerPage(page);
+		}
+	}
 	_getch();
 	
 }
@@ -175,6 +196,7 @@ void loginAdminMenu() {
 	cout << "BANG HAI TAC MU ROM BANK";
 
 	gotoxy(userInputX, userInputY);
+	showCursor(true);
 /***************************************************************
 
 						KEYBOARD EVENT
@@ -280,3 +302,71 @@ void loginUserMenu();
 
 void loadListUsers();
 
+
+
+
+void runProcess() {
+__INIT__:
+	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+	clrscr();
+	createBox(g_initMenuX, g_initMenuY, g_initMenuWidth, g_initMenuHeight, LIGHT_BLUE);
+	drawBorder(g_initMenuX, g_initMenuY, g_initMenuWidth, g_initMenuHeight, '*', YELLOW, GRAY);
+	setTextBGColor(LIGHT_GREEN);
+	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+
+	drawBorder(g_initMenuX + 23, g_initMenuY + 2, 28, 3, '*', RED, LIGHT_BLUE);
+
+	gotoxy(g_initMenuX + 25, g_initMenuY + 3);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_BLUE);
+	cout << "CHON HINH THUC DANG NHAP";
+	POINT BUTTON[3] = {
+		{g_initMenuX + 6, g_initMenuY + 6},
+		{g_initMenuX + 40, g_initMenuY + 6},
+		{g_initMenuX + 23, g_initMenuY + 10}
+	};
+	string nameButton[3]{
+		"QUAN TRI VIEN",
+		"NGUOI DUNG",
+		"THOAT"
+	};
+	for (int i = 0; i < 3; ++i) {
+		drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, YELLOW, LIGHT_BLUE);
+		gotoxy(BUTTON[i].x + 1 + (13 - nameButton[i].length() / 2), BUTTON[i].y + 1);
+		cout << nameButton[i];
+	}
+
+
+	short choose = 0;
+	while (true) {
+		drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, YELLOW, LIGHT_GREEN);
+		showCursor(false);
+		if (_kbhit) {
+			Beep(600, 50);
+			char c = _getch();
+			if (c == 32 || c == -32) {
+				if (c == -32)
+					c = _getch();
+				if (c == KEY_RIGHT || c == 32)
+					if (++choose == 3)
+						choose = 0;
+				if (c == KEY_LEFT)
+					if (--choose == -1)
+						choose = 2;
+
+			}
+			else if (c == '\r') {
+				if (choose == 0) {
+					loginAdminMenu();
+					goto __INIT__;
+				}
+			}
+		}
+		for (int i = 0; i < 3; ++i)
+			drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, YELLOW, LIGHT_BLUE);
+	}
+	_getch();
+
+
+
+}

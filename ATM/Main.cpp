@@ -5,7 +5,7 @@ int main()
 {
 	SetConsoleTitleA("ATM");
 	init();
-	loginAdminMenu();
+	runProcess();
 	_getch();
     return 0;
 }

@@ -151,7 +151,7 @@ public:
 	User(string, string, Name, Money);
 	User(const User&);
 	string getId();
-	string getName();
+	Name getName();
 	Money getAmount();
 	bool operator< (User);
 };
@@ -203,8 +203,8 @@ string User::getId() {
 	return this->_id;
 }
 
-string User::getName() {
-	return _fullname.getFullName();
+Name User::getName() {
+	return _fullname;
 }
 
 Money User::getAmount() {
