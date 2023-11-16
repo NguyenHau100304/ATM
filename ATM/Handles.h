@@ -13,6 +13,7 @@ using std::setw;
 class User;
 class Admin;
 bool isCurrent(const Admin, string);
+bool isCurrent(const User, string);
 int indexOf(string f, string s);
 bool isHas(User& user, string find);
 
@@ -155,6 +156,7 @@ public:
 	Name getName();
 	Money getAmount();
 	bool operator< (User);
+	friend bool isCurrent(const User, string);
 };
 
 
@@ -181,6 +183,13 @@ bool isCurrent(const Admin a, string pw) {
 		return true;
 	return false;
 }
+
+bool isCurrent(const User a, string pw) {
+	if (decoding(a._password) == pw)
+		return true;
+	return false;
+}
+
 
 User::User() : _id("00000000000000"), _password("123456"), _fullname(Name()), _money(Money()) {}
 
