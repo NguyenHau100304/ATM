@@ -58,6 +58,22 @@ void printListUsers() {
 	cout << "F3 - search";
 
 
+	setTextColor(LIGHT_RED);
+	gotoxy(83, 8);
+	cout << "HOT KEY:";
+
+	setTextColor(AQUA);
+	gotoxy(83, 10);
+	cout << "ARROW LEFT - turn page left";
+	gotoxy(83, 12);
+	cout << "ARROW RIGHT - turn page right";
+	gotoxy(83, 14);
+	cout << "PAGE UP - change sort greater";
+	gotoxy(83, 16);
+	cout << "PAGE DOWN - change sort less";
+	gotoxy(83, 18);
+	cout << "ESC - quit";
+
 	gotoxy(83, 28);
 	cout << "Trang " << page << '/' << maxPage;
 
@@ -71,12 +87,30 @@ void printListUsers() {
 			if (c == PAGE_DOWN || c == PAGE_UP) {
 				if (c == PAGE_UP)
 				{
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 14);
+					cout << "PAGE UP - change sort greater";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 14);
+					cout << "PAGE UP - change sort greater";
 					if (chooseSort < 0)
 						chooseSort = 0;
 					else if (++chooseSort == 3)
 						chooseSort = 0;
 				}
 				else {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 16);
+					cout << "PAGE DOWN - change sort less";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 16);
+					cout << "PAGE DOWN - change sort less";
 					if (chooseSort > 0)
 						chooseSort = 0;
 					else if (--chooseSort == -3) {
@@ -87,16 +121,45 @@ void printListUsers() {
 			}
 			if (c == -32) {
 				c = _getch();
-				if (c == KEY_RIGHT) 
+				if (c == KEY_RIGHT) {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 12);
+					cout << "ARROW RIGHT - turn page right";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 12);
+					cout << "ARROW RIGHT - turn page right";
 					if (++page == maxPage + 1)
 						page = 1;
-				if (c == KEY_LEFT)
+				}
+				if (c == KEY_LEFT) {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 10);
+					cout << "ARROW LEFT - turn page left";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 10);
+					cout << "ARROW LEFT - turn page left";
 					if (--page == 0)
 						page = maxPage;
+				}
 				goto __FORMATLIST__;
 			}
 			if (!isSearch) {
 				if (c == ESC) {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 18);
+					cout << "ESC - quit";
+					Beep(800, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 18);
+					cout << "ESC - quit";
 					list.~ListAccount();
 					return;
 				}
@@ -166,9 +229,8 @@ void printListUsers() {
 					}
 				}
 			}
+			if (!isSearch) {
 		__FORMATLIST__:
-			maxPage = list.getSize() / 24;
-			maxPage += (list.getSize() % 24 ? 1 : 0);
 			switch (chooseSort)
 			{
 			case 0:
@@ -189,8 +251,9 @@ void printListUsers() {
 			default:
 				break;
 			}
-			if (!isSearch) {
-			__PRINTLIST__:
+		__PRINTLIST__:
+			maxPage = list.getSize() / 24;
+			maxPage += (list.getSize() % 24 ? 1 : 0);
 				gotoxy(83, 28);
 				setTextBGColor(WHITE);
 				setTextColor(BLACK);
@@ -717,7 +780,6 @@ __INIT__:
 
 
 void adminMenu() {
-	loadingScreen("Loading profile...", 0);
 __INIT__:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();

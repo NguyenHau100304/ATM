@@ -183,9 +183,6 @@ void drawTableList() {
 	setTextColor(RED);
 	gotoxy(19, 0);
 	cout << "  DANH SACH CAC TAI KHOAN";
-	gotoxy(4, 1);
-	setTextColor(BLUE);
-	cout << "RIGHT/LEFT turn page - PAGE UP/PAGE DOWN change sort - ESC quit";
 
 
 	setTextColor(BLACK);
