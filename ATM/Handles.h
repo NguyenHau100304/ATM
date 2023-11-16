@@ -13,7 +13,8 @@ using std::setw;
 class User;
 class Admin;
 bool isCurrent(const Admin, string);
-
+int indexOf(string f, string s);
+bool isHas(User& user, string find);
 
 
 class Admin {
@@ -114,6 +115,7 @@ public:
 	void removeUserAt(int);
 	void removeUserById(string);
 	void display(int, int, short, short, LinkedList<string>&);
+	ListAccount searching(string find);
 	void sortIf(bool (*func)(User, User)) {
 		list.sortIf(func);
 	}
@@ -427,6 +429,18 @@ void ListAccount::save(string path) {
 
 }
 
+ListAccount ListAccount::searching(string find) {
+	ListAccount filter;
+	Node<User>* curr = list._pHead;
+	while (curr) {
+		if (isHas(curr->_data, find)) {
+			filter.append(curr->_data);
+		}
+		curr = curr->_pNext;
+	}
+	return filter;
+}
+
 void ListAccount::display(int start, int end, short x, short y, LinkedList<string> &listIdBlocked) {
 	Node<User>* current = list._pHead;
 	int index = 0;
@@ -572,3 +586,22 @@ Admin ListAdministrator::getAdministratorById(string id) {
 }
 
 
+int indexOf(string f, string s) {
+	if (f.length() > s.length())
+		return -1;
+	if (f == s)
+		return 0;
+	for (int i = 0; i < s.length() - f.length() + 1; ++i)
+		if (f == s.substr(i, f.length()))
+			return i;
+	return -1;
+}
+
+
+bool isHas(User& user, string find) {
+	if (indexOf(find, user.getId()) != -1)
+		return true;
+	if (indexOf(find, user.getName().getFullName()) != -1)
+		return true;
+	return false;
+}

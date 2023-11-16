@@ -127,7 +127,7 @@ void loadingScreen(string title, short delay) {
 	drawLoading(g_loadingX + 1, g_loadingY + 1, g_loadingWidth - 1, RED, 1);
 }
 
-void printListPerPage(int page, int sort) {
+void printListPerPage(int page, int sort, ListAccount& list) {
 	POINT TAGs[3] = {
 		{20, 3},
 		{45, 3},
@@ -143,11 +143,18 @@ void printListPerPage(int page, int sort) {
 		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
 		cout << NAMETAGs[i];
 	}
-	if(sort > 1){
+	if(sort > 0){
 		setTextBGColor(LIGHT_BLUE);
 		setTextColor(BLACK);
-		gotoxy(TAGs[sort - 2].x + ((TAGs[sort - 1].x - TAGs[sort - 2].x) / 2) - NAMETAGs[sort - 2].length() / 2 - 1, TAGs[sort - 2].y);
-		cout << NAMETAGs[sort - 2];
+		gotoxy(TAGs[sort - 1].x + ((TAGs[sort].x - TAGs[sort - 1].x) / 2) - NAMETAGs[sort - 1].length() / 2 - 1, TAGs[sort - 1].y);
+		cout << NAMETAGs[sort - 1];
+	}
+	else if (sort < 0) {
+		sort = abs(sort);
+		setTextBGColor(LIGHT_RED);
+		setTextColor(BLACK);
+		gotoxy(TAGs[sort - 1].x + ((TAGs[sort].x - TAGs[sort - 1].x) / 2) - NAMETAGs[sort - 1].length() / 2 - 1, TAGs[sort - 1].y);
+		cout << NAMETAGs[sort - 1];
 	}
 	setTextBGColor(WHITE);
 	short x = 0, y = 5;
@@ -155,16 +162,16 @@ void printListPerPage(int page, int sort) {
 		gotoxy(x + 1, y);
 		cout << "   ";
 		gotoxy(x + 5, y);
-		cout << setfill(14);
+		cout << setFill(14);
 		gotoxy(x + 20, y);
-		cout << setfill(24);
+		cout << setFill(24);
 		gotoxy(x + 45, y);
-		cout << setfill(23);
+		cout << setFill(23);
 		gotoxy(x + 69, y);
-		cout << setfill(9);
+		cout << setFill(9);
 		++y;
 	}
-	listAccount.display(24 * (page - 1), 24 * page - 1, 0, 5, listIdBlocked);
+	list.display(24 * (page - 1), 24 * page - 1, 0, 5, listIdBlocked);
 }
 
 

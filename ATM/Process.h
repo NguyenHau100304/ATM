@@ -46,60 +46,158 @@ void printListUsers() {
 	loadingScreen("Loading data...", 10);
 	drawTableList();
 
-	int page = 1, chooseSort = 1;
+	int page = 1, chooseSort = 0;
 	int maxPage = listAccount.getSize() / 24;
 	maxPage += (listAccount.getSize() % 24 ? 1 : 0);
-	listAccount.load("./data/", "./data/TheTu.txt");
-	printListPerPage(1, 1);
+	ListAccount list(listAccount);
+	ListAccount filerList;
+	string input = "";
+	printListPerPage(1, 0, list);
+
+	gotoxy(83, 3);
+	cout << "F3 - search";
+
+
 	gotoxy(83, 28);
 	cout << "Trang " << page << '/' << maxPage;
 
 	showCursor(false);
-	
+	bool isSearch = false, isCurrentSearch = false;
 	while (true) {
-		if (_kbhit()) {
+		if (_kbhit) {
 			char c = _getch();
-
-			if (c == ESC) {
-				listAccount.load("./data/", "./data/TheTu.txt");
-				return;
-			}
-				
-
-			if (c == -32)
+			if (c == 0)
 				c = _getch();
+			if (c == PAGE_DOWN || c == PAGE_UP) {
+				if (c == PAGE_UP)
+				{
+					if (chooseSort < 0)
+						chooseSort = 0;
+					else if (++chooseSort == 3)
+						chooseSort = 0;
+				}
+				else {
+					if (chooseSort > 0)
+						chooseSort = 0;
+					else if (--chooseSort == -3) {
+						chooseSort = 0;
+					}
+				}
+				goto __FORMATLIST__;
+			}
+			if (c == -32) {
+				c = _getch();
+				if (c == KEY_RIGHT) 
+					if (++page == maxPage + 1)
+						page = 1;
+				if (c == KEY_LEFT)
+					if (--page == 0)
+						page = maxPage;
+				goto __FORMATLIST__;
+			}
+			if (!isSearch) {
+				if (c == ESC) {
+					list.~ListAccount();
+					return;
+				}
 
-			if (c == PAGE_DOWN || c == PAGE_UP)
-				if (++chooseSort == 4)
-					chooseSort = 1;
-
-
-			if (c == KEY_RIGHT)
-				if (++page == maxPage + 1)
-					page = 1;
-			if (c == KEY_LEFT)
-				if (--page == 0)
-					page = maxPage;
-
+				if (c == KEY_F3) {
+					isSearch = true;
+					gotoxy(83, 5);
+					cout << "BACK - ESC       FIND - Enter";
+					gotoxy(83, 4);
+					setTextBGColor(BLACK);
+					setTextColor(GRAY);
+					cout << "Find..                       ";
+					setTextColor(WHITE);
+					gotoxy(83, 4);
+					showCursor(true);
+					continue;
+				}
+			}
+			else {
+				if (isCurrentSearch) {
+					list = listAccount;
+					isCurrentSearch = false;
+				}
+				setTextBGColor(BLACK);
+				setTextColor(WHITE);
+				gotoxy(83 + input.length(), 4);
+				showCursor(true);
+				if (c == ESC || c == KEY_F3) {
+					setTextBGColor(WHITE);
+					gotoxy(83, 4);
+					cout << "                              ";
+					gotoxy(83, 5);
+					cout << "                              ";
+					isSearch = false;
+					input.clear();
+					list = listAccount;
+					goto __PRINTLIST__;
+				}
+				if (c == '\r') {
+					list = list.searching(input);
+					isCurrentSearch = true;
+					goto __PRINTLIST__;
+				}
+				else if (c == '\b')
+				{
+					if (!input.empty()) {
+						cout << "\b  \b";
+						input.pop_back();
+						gotoxy(83 + input.length(), 4);
+					}
+					if (input.empty()) {
+						gotoxy(83, 4);
+						setTextBGColor(BLACK);
+						setTextColor(GRAY);
+						cout << "Find..                       ";
+						setTextColor(WHITE);
+					}
+				}
+				else if (c >= 32) {
+					gotoxy(83 + input.length(), 4);
+					cout << char(toupper(c));
+					input.push_back(toupper(c));
+					if (input.length() == 1) {
+						gotoxy(84, 4);
+						cout << setFill(28);
+						gotoxy(83 + input.length(), 4);
+					}
+				}
+			}
+		__FORMATLIST__:
+			maxPage = list.getSize() / 24;
+			maxPage += (list.getSize() % 24 ? 1 : 0);
 			switch (chooseSort)
 			{
+			case 0:
+				if(!isSearch)
+					list = listAccount;
+				break;
 			case 1:
-				listAccount.load("./data/", "./data/TheTu.txt");
+				list.sortIf(compareUserbyName);
 				break;
 			case 2:
-				listAccount.sortIf(compareUserbyName);
+				list.sortIf(compareUserbyMoneyGreater);
 				break;
-			case 3:
-				listAccount.sortIf(compareUserbyMoney);
+			case -1:
+				list.sortIf(compareUserbyNameGreater);
 				break;
+			case -2:
+				list.sortIf(compareUserbyMoney);
 			default:
 				break;
 			}
-			gotoxy(83, 28);
-			setTextColor(BLACK);
-			cout << "Trang " << page << '/' << maxPage;
-			printListPerPage(page, chooseSort);
-			showCursor(false);
+			if (!isSearch) {
+			__PRINTLIST__:
+				gotoxy(83, 28);
+				setTextBGColor(WHITE);
+				setTextColor(BLACK);
+				cout << "Trang " << page << '/' << maxPage;
+				printListPerPage(page, chooseSort, list);
+				showCursor(false);
+			}
 		}
 	}
 	_getch();
@@ -149,7 +247,7 @@ void addUserToList() {
 		cout << setw(12) << right << titleHoverText[i];
 		setTextBGColor(GRAY);
 		gotoxy(hoverText[i].x + 12, hoverText[i].y);
-		cout << setfill(30);
+		cout << setFill(30);
 		hoverText[i].x += 12;
 	}
 
@@ -348,7 +446,7 @@ __INIT__:
 	cout << "ID: ";
 	setTextBGColor(GRAY);
 	gotoxy(hoverText.x += 4, hoverText.y);
-	cout << setfill(29);
+	cout << setFill(29);
 
 	bool isInput = true;
 	string inputId = "";
@@ -496,7 +594,7 @@ __INIT__:
 	cout << "ID: ";
 	setTextBGColor(GRAY);
 	gotoxy(hoverText.x += 4, hoverText.y);
-	cout << setfill(29);
+	cout << setFill(29);
 
 	bool isInput = true;
 	string inputId = "";
@@ -519,8 +617,11 @@ __INIT__:
 			}
 			if (c == '\r' && !inputId.empty()) {
 				User Temp = listAccount.getUserById(inputId);
-				bool isNotBlock = listIdBlocked.search(inputId) == NULL;
-				if (!isNotBlock && Temp.getId() != "00000000000000") {
+				bool isNotBlock = false;
+				if (Temp.getId() != "00000000000000") {
+					isNotBlock = listIdBlocked.search(inputId) == NULL;
+					if (isNotBlock)
+						goto __EXCEPT__;
 					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
 					gotoxy(hoverText.x, hoverText.y + 1);
 					setTextBGColor(YELLOW);
@@ -530,7 +631,6 @@ __INIT__:
 					gotoxy(hoverText.x, hoverText.y + 2);
 					setTextColor(RED);
 					cout << Temp.getName() << '\n';
-
 					gotoxy(hoverText.x, hoverText.y + 3);
 					setTextColor(BLACK);
 					cout << "SO DU: ";
@@ -542,14 +642,12 @@ __INIT__:
 					setTextBGColor(LIGHT_BLUE);
 					setTextColor(RED);
 					cout << "HUY - ESC";
-
 					gotoxy(hoverText.x + 14, hoverText.y + 6);
 					setTextBGColor(LIGHT_BLUE);
 					setTextColor(RED);
 					cout << "MO KHOA - ENTER";
 
 					c = _getch();
-
 					if (c == ESC) {
 						Beep(800, 50);
 						gotoxy(hoverText.x, hoverText.y + 6);
@@ -581,6 +679,7 @@ __INIT__:
 					}
 				}
 				else {
+					__EXCEPT__:
 					gotoxy(hoverText.x, hoverText.y + 1);
 					setTextBGColor(LIGHT_GREEN);
 					setTextColor(RED);
@@ -667,9 +766,14 @@ __INIT__:
 	while (true) {
 		drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, BLACK, YELLOW);
 		showCursor(false);
-		if (_kbhit) {
+		if (_kbhit()) {
 			char c = _getch();
+
+			if (c == ESC)
+				goto __LOGOUT__;
+
 			if (c == 32 || c == -32) {
+				drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, BLACK, LIGHT_GREEN);
 				Beep(600, 50);
 				if (c == -32)
 					c = _getch();
@@ -706,6 +810,7 @@ __INIT__:
 					break;
 				}
 				case 4: {
+					__LOGOUT__:
 					if (confirmProcess("Ban co chac muon dang xuat ?"))
 						return;
 					else
@@ -717,31 +822,10 @@ __INIT__:
 				}
 			}
 		}
-		for (int i = 0; i < 5; ++i)
-			drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, BLACK, LIGHT_GREEN);
 	}
-	_getch();
-
 }
 
-
-
-
-
-
 void userMenu();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void loginAdminMenu() {
@@ -790,18 +874,20 @@ LOGIN:
 	setTextColor(WHITE);
 	cout << "BANG HAI TAC MU ROM BANK";
 
-	gotoxy(userInputX, userInputY);
-	showCursor(true);
 	/***************************************************************
 
 							KEYBOARD EVENT
 
 	****************************************************************/
-
 	char c = '\0';
 	string inputId = "", inputPass = "";
 	bool isInputId = true;
 	while (true) {
+		if (isInputId)
+			gotoxy(userInputX + inputId.length(), userInputY);
+		else
+			gotoxy(passInputX + inputPass.length(), passInputY);
+		showCursor(true);
 		if (_kbhit()) {
 			setTextBGColor(BLACK);
 			setTextColor(WHITE);
@@ -883,7 +969,7 @@ LOGIN:
 						isInputId = true;
 					}
 				}
-				goto CONTINUE;
+				continue;
 			}
 			else if (c == '\b') {
 				if (isInputId && !inputId.empty()) {
@@ -894,7 +980,7 @@ LOGIN:
 					cout << "\b  \b";
 					inputPass.pop_back();
 				}
-				goto CONTINUE;
+
 			}
 			else if(c != 32 && c != '\n' && c != '\t' && c != '\0') {
 				if (isInputId && inputId.length() < 15) {
@@ -903,16 +989,12 @@ LOGIN:
 				}
 				else if(isNumber(c) && inputPass.length() < 6)
 				{
-					Beep(600, 50);
+					Beep(600, 40);
 					cout << '*';
 					inputPass = inputPass + c;
 				}
 			}
-		CONTINUE:
-			if (isInputId)
-				gotoxy(userInputX + inputId.length(), userInputY);
-			else
-				gotoxy(passInputX + inputPass.length(), passInputY);
+			
 		}
 	}
 
@@ -953,23 +1035,53 @@ __INIT__:
 	};
 	string nameButton[3]{
 		"QUAN TRI VIEN",
-		"NGUOI DUNG",
+		" NGUOI DUNG",
 		"THOAT"
 	};
 	for (int i = 0; i < 3; ++i) {
 		drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, BLACK, LIGHT_GREEN);
-		gotoxy(BUTTON[i].x + 1 + (13 - nameButton[i].length() / 2), BUTTON[i].y + 1);
+		gotoxy(BUTTON[i].x  + (13 - nameButton[i].length() / 2), BUTTON[i].y + 1);
 		cout << nameButton[i];
 	}
-
-
 	short choose = 0;
+	string runningString = "    NGAN HANG BANG HAI TAC MU ROM    ";
+	int len = runningString.length(), lenLarge = g_initMenuWidth;
+	runningString = setFill(len) + runningString;
+	runningString = runningString + setFill(len);
+	int runWord = 0, runWordL = 0;
+
+	string runLargeName[6];
+	ifstream fin("FullNameBank.txt");
+	for (int i = 0; i < 6; ++i) {
+		getline(fin, runLargeName[i]);
+		runLargeName[i] = setFill(79) + runLargeName[i];
+		runLargeName[i] = runLargeName[i] + setFill(79);
+	}
+	fin.close();
 	while (true) {
+		gotoxy(g_initMenuX + 18, g_initMenuY + 15);
+		setTextBGColor(BLACK);
+		setTextColor(rand() % 15);
+		cout << runningString.substr(runWord++, len);
+		runWord = runWord >= len * 2 ? 0 : runWord;
+
+		setTextBGColor(YELLOW);
+		setTextColor(RED);
+		for (int i = 0; i < 6; ++i) {
+			gotoxy(17, i);
+			cout << runLargeName[i].substr(runWordL, lenLarge);
+			
+		}
+		++runWordL;
+		runWordL = (runWordL >= 245) ? 0 : runWordL;
+		Sleep(50);
+
 		drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, BLACK, YELLOW);
 		showCursor(false);
-		if (_kbhit) {
+		if (_kbhit()) {
 			char c = _getch();
 			if (c == 32 || c == -32) {
+				drawBorder(BUTTON[choose].x, BUTTON[choose].y, 28, 3, 1, BLACK, LIGHT_GREEN);
 				Beep(600, 50);
 				if (c == -32)
 					c = _getch();
@@ -1004,10 +1116,7 @@ __INIT__:
 				}
 			}
 		}
-		for (int i = 0; i < 3; ++i)
-			drawBorder(BUTTON[i].x, BUTTON[i].y, 28, 3, 1, BLACK, LIGHT_GREEN);
 	}
-	_getch();
 
 
 

@@ -1,7 +1,7 @@
 ﻿#include "Process.h"
 
 int main(){
-	SetConsoleTitleA("ATM");
+	SetConsoleTitle(L"ATM");
 	init();
 	runProcess();
 	//addUserToList();
