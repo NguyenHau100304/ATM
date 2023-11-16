@@ -6,5 +6,7 @@ int main(){
 	runProcess();
 	//addUserToList();
 	//printListUsers();
+	//deleteUser();
+	//unblockUser();
     return 0;
 }

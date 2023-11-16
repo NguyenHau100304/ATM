@@ -4,8 +4,7 @@
 #include "TempMemory.cpp"
 #include "IndependentFunction.h"
 #include "Drawing.h"
-#include <conio.h>
-#include <cstdlib>
+
 
 
 
@@ -61,8 +60,11 @@ void printListUsers() {
 		if (_kbhit()) {
 			char c = _getch();
 
-			if (c == ESC)
+			if (c == ESC) {
+				listAccount.load("./data/", "./data/TheTu.txt");
 				return;
+			}
+				
 
 			if (c == -32)
 				c = _getch();
@@ -121,6 +123,10 @@ void addUserToList() {
 	setTextBGColor(LIGHT_GREEN);
 	cout << "NHAP THONG TIN TAI KHOAN";
 
+	gotoxy(g_adminMenuX + 4, g_adminMenuY + g_adminMenuHeight - 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
 
 	setTextBGColor(LIGHT_GREEN);
 	setTextColor(BLACK);
@@ -197,8 +203,15 @@ void addUserToList() {
 			c = _getch();
 
 			// ESC
-			if (c == ESC)
+			if (c == ESC) {
+				gotoxy(g_adminMenuX + 3, g_adminMenuY + g_adminMenuHeight - 3);
+				setTextBGColor(LIGHT_RED);
+				setTextColor(LIGHT_BLUE);
+				cout << " BACK - Esc ";
+				Beep(800, 50);
+				Sleep(50);
 				return;
+			}
 			// KY TU KHOA
 			if (c == 0 || c == 224)
 				c = _getch();
@@ -226,8 +239,8 @@ void addUserToList() {
 					if (++curr == 5)
 						curr = 1;
 				if(c == '\r')
-					if (++curr == 4) {
-						if (!input[0].empty() && !input[1].empty() && !input[2].empty()) {
+					if (++curr >= 4) {
+						if (!input[3].empty() && !input[1].empty() && !input[2].empty()) {
 							if (input[3] != "USD" && input[3] != "VND")
 								input[3] = "VND";
 							User newUser(input[0], "123456", Name(input[1]), Money(stoi(input[2]), input[3]));
@@ -237,6 +250,26 @@ void addUserToList() {
 							Beep(1000, 200);
 							
 							return;
+						}
+						else {
+							Beep(1000, 200);
+							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
+							setTextBGColor(LIGHT_GREEN);
+							setTextColor(RED);
+							cout << "                             ";
+							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
+							cout << "Khong duoc bo trong ";
+							if (input[1].empty())
+								cout << "o Ho Ten";
+							else if (input[3].empty())
+								cout << "o So Du";
+							else cout << "o Tien Te";
+							curr = 1;
+							showCursor(false);
+							_getch();
+							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
+							cout << "                             ";
+							showCursor(true);
 						}
 					}
 				if (curr != 4) {
@@ -277,12 +310,311 @@ void addUserToList() {
 			
 		}
 	}
-
-
-
-
 	_getch();
 }
+
+
+void deleteUser() {
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+__INIT__:
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
+	setTextBGColor(YELLOW);
+
+	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+
+
+	drawBorder(g_initMenuX + 24, g_initMenuY + 1, 29, 3, 1, RED, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 26, g_adminMenuY + 2);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "NHAP ID TAI KHOAN CAN XOA";
+
+
+	gotoxy(g_adminMenuX + 4, g_adminMenuY + g_adminMenuHeight - 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(BLACK);
+
+	
+	POINT hoverText = {g_adminMenuX + 20, g_adminMenuY + 6};
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(hoverText.x, hoverText.y);
+	cout << "ID: ";
+	setTextBGColor(GRAY);
+	gotoxy(hoverText.x += 4, hoverText.y);
+	cout << setfill(29);
+
+	bool isInput = true;
+	string inputId = "";
+	gotoxy(hoverText.x, hoverText.y);
+	showCursor(true);
+	while (true) {
+		if (isInput)
+			gotoxy(hoverText.x + inputId.length(), hoverText.y);
+		
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(g_adminMenuX + 3, g_adminMenuY + g_adminMenuHeight - 3);
+				setTextBGColor(LIGHT_RED);
+				setTextColor(LIGHT_BLUE);
+				cout << " BACK - Esc ";
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == '\r' && !inputId.empty()) {
+				User Temp = listAccount.getUserById(inputId);
+				if (Temp.getId() != "00000000000000"){
+					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(YELLOW);
+
+					setTextColor(BLACK);
+					cout << "TEN TAI KHOAN: ";
+					gotoxy(hoverText.x, hoverText.y + 2);
+					setTextColor(RED);
+					cout << Temp.getName() << '\n';
+
+					gotoxy(hoverText.x, hoverText.y + 3);
+					setTextColor(BLACK);
+					cout << "SO DU: ";
+					gotoxy(hoverText.x, hoverText.y + 4);
+					setTextColor(RED);
+					cout << Temp.getAmount();
+
+					gotoxy(hoverText.x, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "HUY - ESC";
+
+					gotoxy(hoverText.x + 18, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "XOA - ENTER";
+
+					c = _getch();
+
+					if (c == ESC) {
+						Beep(800, 50);
+						gotoxy(hoverText.x, hoverText.y + 6);
+						setTextBGColor(LIGHT_RED);
+						setTextColor(BLUE);
+						cout << "HUY - ESC";
+						showCursor(false);
+						Sleep(50);
+						goto __INIT__;
+					}
+					else if (c == '\r') {
+						Beep(800, 50);
+						if (confirmProcess("Ban co chac muon xoa tai khoan nay ?")) {
+							listAccount.removeUserById(inputId);
+							listAccount.saveCard("./data/TheTu.txt");
+							listAccount.save("./data/");
+							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
+							setTextBGColor(AQUA);
+							setTextColor(BLACK);
+							cout << "DA XOA TAI KHOAN";
+							showCursor(false);
+							_getch();
+							return;
+						}
+						else
+						{
+							goto __INIT__;
+						}
+					}
+				}
+				else {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					cout << "Tai khoan khong ton tai!";
+					Beep(1000, 200);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                        ";
+				}
+			}
+			else if (c == '\b') {
+				setTextBGColor(GRAY);
+				setTextColor(GRAY);
+				if (inputId.length() > 0) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if(isNumber(c) && inputId.length() < 15) {
+				setTextBGColor(GRAY);
+				setTextColor(BLACK);
+				cout << c;
+				inputId.push_back(c);
+			}
+		}
+	}
+
+}
+
+void unblockUser() {
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+__INIT__:
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
+	setTextBGColor(YELLOW);
+
+	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+
+
+	drawBorder(g_initMenuX + 22, g_initMenuY + 1, 32, 3, 1, RED, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 24, g_adminMenuY + 2);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "NHAP ID TAI KHOAN CAN MO KHOA";
+
+
+	gotoxy(g_adminMenuX + 4, g_adminMenuY + g_adminMenuHeight - 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(BLACK);
+
+
+	POINT hoverText = { g_adminMenuX + 20, g_adminMenuY + 6 };
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(hoverText.x, hoverText.y);
+	cout << "ID: ";
+	setTextBGColor(GRAY);
+	gotoxy(hoverText.x += 4, hoverText.y);
+	cout << setfill(29);
+
+	bool isInput = true;
+	string inputId = "";
+	gotoxy(hoverText.x, hoverText.y);
+	showCursor(true);
+	while (true) {
+		if (isInput)
+			gotoxy(hoverText.x + inputId.length(), hoverText.y);
+
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(g_adminMenuX + 3, g_adminMenuY + g_adminMenuHeight - 3);
+				setTextBGColor(LIGHT_RED);
+				setTextColor(LIGHT_BLUE);
+				cout << " BACK - Esc ";
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == '\r' && !inputId.empty()) {
+				User Temp = listAccount.getUserById(inputId);
+				bool isNotBlock = listIdBlocked.search(inputId) == NULL;
+				if (!isNotBlock && Temp.getId() != "00000000000000") {
+					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(YELLOW);
+
+					setTextColor(BLACK);
+					cout << "TEN TAI KHOAN: ";
+					gotoxy(hoverText.x, hoverText.y + 2);
+					setTextColor(RED);
+					cout << Temp.getName() << '\n';
+
+					gotoxy(hoverText.x, hoverText.y + 3);
+					setTextColor(BLACK);
+					cout << "SO DU: ";
+					gotoxy(hoverText.x, hoverText.y + 4);
+					setTextColor(RED);
+					cout << Temp.getAmount();
+
+					gotoxy(hoverText.x, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "HUY - ESC";
+
+					gotoxy(hoverText.x + 14, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "MO KHOA - ENTER";
+
+					c = _getch();
+
+					if (c == ESC) {
+						Beep(800, 50);
+						gotoxy(hoverText.x, hoverText.y + 6);
+						setTextBGColor(LIGHT_RED);
+						setTextColor(BLUE);
+						cout << "HUY - ESC";
+						showCursor(false);
+						Sleep(50);
+						goto __INIT__;
+					}
+					else if (c == '\r') {
+						Beep(800, 50);
+						if (confirmProcess("Ban co chac muon mo khoa tai khoan nay ?")) {
+							listIdBlocked.remove(inputId);
+							listIdBlocked.save("./data/AccountBlocked/ALL.txt");
+							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
+							setTextBGColor(AQUA);
+							setTextColor(BLACK);
+							cout << "DA MO KHOA TAI KHOAN";
+							showCursor(false);
+							_getch();
+							return;
+						}
+						else
+						{
+							goto __INIT__;
+						}
+					}
+				}
+				else {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					if (isNotBlock)
+						cout << "Tai khoan nay khong bi khoa";
+					else
+						cout << "Tai khoan khong ton tai!";
+					Beep(1000, 200);
+					showCursor(false);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                                 ";
+					showCursor(true);
+				}
+			}
+			else if (c == '\b') {
+				setTextBGColor(GRAY);
+				setTextColor(GRAY);
+				if (inputId.length() > 0) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if (isNumber(c) && inputId.length() < 15) {
+				setTextBGColor(GRAY);
+				setTextColor(BLACK);
+				cout << c;
+				inputId.push_back(c);
+			}
+		}
+	}
+
+}
+
 
 
 void adminMenu() {
@@ -322,7 +654,7 @@ __INIT__:
 	
 	gotoxy(g_adminMenuX + 23 + 24, g_adminMenuY + 17);
 	setTextBGColor(LIGHT_GREEN);
-	setTextColor(LIGHT_BLUE);
+	setTextColor(RED);
 	cout << "RIGHT / LEFT ARROW TO MOVE";
 
 /***********************************************************************
@@ -364,16 +696,21 @@ __INIT__:
 					break;
 				}
 				case 2: {
-
+					deleteUser();
 					goto __INIT__;
 					break;
 				}
 				case 3: {
-
+					unblockUser();
 					goto __INIT__;
+					break;
 				}
 				case 4: {
-					return;
+					if (confirmProcess("Ban co chac muon dang xuat ?"))
+						return;
+					else
+						goto __INIT__;
+					break;
 				}
 				default:
 					break;
@@ -655,10 +992,15 @@ __INIT__:
 					goto __INIT__;
 				}
 				else {
-					resetTextBGColor();
-					resetTextColor();
-					clrscr();
-					return;
+					if (confirmProcess("Ban co chac muon thoat chuong trinh ?")) {
+						resetTextBGColor();
+						resetTextColor();
+						clrscr();
+						return;
+					}
+					else {
+						goto __INIT__;
+					}
 				}
 			}
 		}

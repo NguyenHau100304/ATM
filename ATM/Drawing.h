@@ -2,6 +2,8 @@
 #include "Display.h"
 #include <fstream>
 #include <string>
+#include <conio.h>
+#include <cstdlib>
 void printArt(short x, short y, string path, int color, int bgcolor = YELLOW) {
 	gotoxy(x, y);
 	ifstream fin(path);
@@ -20,6 +22,7 @@ void printArt(short x, short y, string path, int color, int bgcolor = YELLOW) {
 	resetTextColor();
 
 }
+
 
 
 void drawBorder(short x, short y, short width, short height, char c = ' ', short color = WHITE, short bgcolor = BLACK) {
@@ -65,6 +68,54 @@ void drawLoading(short x, short y, short width, short color, short delay) {
 		Sleep(delay);
 	}
 }
+
+
+bool confirmProcess(string title) {
+	createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+	gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - (title.length() / 2), g_adminMenuY + 4);
+	setTextBGColor(AQUA);
+	setTextColor(BLACK);
+	cout << title;
+
+	drawBorder(g_adminMenuX + 10, g_adminMenuY + 6, 24, 3, 1, WHITE, AQUA);
+	gotoxy((g_adminMenuX + 10 + 24 / 2) - 1, g_adminMenuY + 7);
+	cout << "NO";
+
+	drawBorder(g_adminMenuX + 44, g_adminMenuY + 6, 24, 3, 1, WHITE, AQUA);
+	gotoxy((g_adminMenuX + 44 + 24 / 2) - 2, g_adminMenuY + 7);
+	cout << "YES";
+
+	bool choose = false;
+	drawBorder(g_adminMenuX + 10, g_adminMenuY + 6, 24, 3, 1, WHITE, YELLOW);
+	while (true) {
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == -32)
+				c = _getch();
+
+			if (c == 32 || c == KEY_LEFT || c == KEY_RIGHT) {
+				choose = choose ? false : true;
+				Beep(600, 50);
+			}
+
+			if (c == '\r') {
+				Beep(800, 50);
+				return choose;
+			}
+			if (choose) {
+				drawBorder(g_adminMenuX + 10, g_adminMenuY + 6, 24, 3, 1, WHITE, AQUA);
+				drawBorder(g_adminMenuX + 44, g_adminMenuY + 6, 24, 3, 1, WHITE, YELLOW);
+			}
+			else {
+				drawBorder(g_adminMenuX + 44, g_adminMenuY + 6, 24, 3, 1, WHITE, AQUA);
+				drawBorder(g_adminMenuX + 10, g_adminMenuY + 6, 24, 3, 1, WHITE, YELLOW);
+			}
+		}
+		showCursor(false);
+	}
+	return true;
+}
+
 
 
 void loadingScreen(string title, short delay) {
@@ -115,6 +166,9 @@ void printListPerPage(int page, int sort) {
 	}
 	listAccount.display(24 * (page - 1), 24 * page - 1, 0, 5, listIdBlocked);
 }
+
+
+
 void drawTableList() {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	setTextBGColor(WHITE);

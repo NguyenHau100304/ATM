@@ -27,6 +27,8 @@
 
 #define TAB 9
 
+#define AQUA 3
+#define LIGHT_AQUA 11
 #define BLACK 0
 #define BLUE 1
 #define GREEN 2
