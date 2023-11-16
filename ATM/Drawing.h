@@ -168,8 +168,4 @@ void drawTableList() {
 		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
 		cout << NAMETAGs[i];
 	}
-
-
-
-
 }

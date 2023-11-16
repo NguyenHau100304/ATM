@@ -304,7 +304,7 @@ __INIT__:
 	POINT BUTTON[5] = {
 		{g_adminMenuX + 6, g_adminMenuY + 2}, 	{g_adminMenuX + 40, g_adminMenuY + 2},
 		{g_adminMenuX + 6, g_adminMenuY + 8},   {g_adminMenuX + 40, g_adminMenuY + 8},
-		{g_adminMenuX + 23, g_adminMenuY + 15}
+		{g_adminMenuX + 23, g_adminMenuY + 13}
 	};
 	string nameButton[5]{
 		"XEM DANH SACH TAI KHOAN",
@@ -320,6 +320,11 @@ __INIT__:
 		cout << nameButton[i];
 	}
 	
+	gotoxy(g_adminMenuX + 23 + 24, g_adminMenuY + 17);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "RIGHT / LEFT ARROW TO MOVE";
+
 /***********************************************************************
 
 							CHOOSE PROCESS
@@ -430,6 +435,19 @@ LOGIN:
 	setTextColor(RED);
 	cout << "PIN:                          ";
 
+
+	gotoxy(passInputX - 5, passInputY + 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+
+	gotoxy(passInputX + 12, passInputY + 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "LOGIN - Enter";
+
 	gotoxy(g_loginRectX + 8, g_loginRectY + 18);
 	setTextBGColor(LIGHT_GREEN);
 	setTextColor(WHITE);
@@ -444,7 +462,6 @@ LOGIN:
 	****************************************************************/
 
 	char c = '\0';
-	short wrongPw = 0;
 	string inputId = "", inputPass = "";
 	bool isInputId = true;
 	while (true) {
@@ -453,9 +470,16 @@ LOGIN:
 			setTextColor(WHITE);
 			c = _getch();
 
-			if (c == ESC)
+			if (c == ESC) {
+				gotoxy(passInputX - 6, passInputY + 3);
+				setTextBGColor(RED);
+				setTextColor(LIGHT_GREEN);
+				cout << " BACK - Esc ";
+				showCursor(false);
+				Beep(800, 50);
+				Sleep(50);
 				return;
-
+			}
 			if (c == 0 || c == 224)
 				c = _getch();
 
@@ -470,20 +494,36 @@ LOGIN:
 					if (c == '\r') {
 						if (isCurrent(listAdmin.getAdministratorById(inputId), inputPass)) {
 							Beep(800, 50);
+							wrongTime = 0;
+
+							gotoxy(passInputX + 11, passInputY + 3);
+							setTextBGColor(RED);
+							setTextColor(LIGHT_GREEN);
+							cout << " LOGIN - Enter ";
+							showCursor(false);
+							Sleep(50);
 							adminMenu();
 							goto LOGIN;
 						}
 						else if(!inputId.empty() && !inputPass.empty()) {
-							if (++wrongPw == 3) {
-								if (++wrongTime == 2) {
-									clrscr();
-									cout << "Ban da nhap sai qua nhieu lan!!!\n";
-									_getch();
-									exit(0);
-								}
+							if (++wrongTime == 3) {
 								clrscr();
 								waiting(30);
 								goto LOGIN;
+							} if (wrongTime == 4) {
+								listAdmin.~ListAdministrator();
+								listAccount.~ListAccount();
+								setConsoleBackgroundColor(BACKGROUND_RED);
+								setTextBGColor(RED);
+								setTextColor(YELLOW);	
+								clrscr();
+								cout << "Ban da nhap sai qua nhieu lan!!!\n!!!!!!!!CANH BAO!!!!!!!!";
+								showCursor(false);
+								while (++wrongTime <= 30) {
+									Beep(1200, 500);
+									Sleep(5);
+								}
+								exit(0);
 							}
 							else {
 								Beep(1000,200);
