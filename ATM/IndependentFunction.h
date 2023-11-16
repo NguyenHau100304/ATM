@@ -1,6 +1,23 @@
 #pragma once
 
 #include "Handles.h";
+#include <cstdlib>
+#include <ctime>
+
+int getRandomNumber() {
+	unsigned int n;
+	for (int i = 0; i < 500; ++i) {
+		n = std::rand() % 10;
+	}
+	return n;
+}
+
+string getRandomId() {
+	string id = "";
+	for (int i = 0; i < 14; ++i)
+		id = id + char(getRandomNumber() + 48);
+	return id;
+}
 
 string setfill(int n) {
 	string s = "";

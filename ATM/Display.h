@@ -18,6 +18,9 @@ void resizeConsole(short width, short height) {
 	GetWindowRect(console, &r);
 	MoveWindow(console, r.left, r.top, width, height, TRUE);
 }
+void setCursorColor(int color) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
 
 void setConsoleWindowSize(short width, short height) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);

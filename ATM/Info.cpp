@@ -6,7 +6,7 @@ Name::Name() : _fullname("No Name") {}
 
 Name::Name(const Name& _cpyName) {
 	this->_fullname = _cpyName._fullname;
-	//this->formatName();
+	this->formatName();
 }
 
 Name::Name(string _strName) {
@@ -19,14 +19,14 @@ void Name::formatName() {
 		c = toupper(c);
 
 	while (this->_fullname[0] == 32)
-		this->_fullname.erase(0);
+		this->_fullname.erase(0, 1);
 
 	while (this->_fullname[this->_fullname.length() - 1] == 32)
 		this->_fullname.pop_back();
 
 	for(int i = 0; i < this->_fullname.length() - 1; ++i)
 		if (this->_fullname[i] == 32 && this->_fullname[i + 1] == 32) {
-			this->_fullname.erase(i);
+			this->_fullname.erase(i, 1);
 			--i;
 		}
 
@@ -79,7 +79,13 @@ bool Name::operator< (Name _b) {
 
 Money::Money() : _amount(0), _type("VND") {}
 
-Money::Money(float _amnt, string _strType) : _amount(_amnt), _type(_strType) {}
+Money::Money(float _amnt, string _strType) {
+	_type = _strType;
+	if (_type == "USD")
+		_amount = _amnt * 24580;
+	else
+		_amount = _amnt;
+}
 
 Money::Money(const Money& _m) {
 	_amount = _m._amount;
@@ -92,7 +98,7 @@ float Money::getAmount() {
 
 float Money::getMoney() {
 	if (_type == "USD")
-		return float(_amount / 24.580);
+		return float(_amount / 24580);
 	else
 		return _amount;
 }
@@ -103,6 +109,8 @@ string Money::getType() {
 
 istream& operator>> (istream& _is, Money& _money) {
 	_is >> _money._amount >> _money._type;
+	if (_money._type == "USD")
+		_money._amount = _money._amount * 24580;
 	return _is;
 }
 

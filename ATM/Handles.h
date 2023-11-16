@@ -3,6 +3,7 @@
 #include "Display.h"
 #include "Info.h"
 #include "Structure.h"
+#include "EncodingPassword.h"
 #include <fstream>
 #include <iomanip>
 using std::ifstream;
@@ -146,7 +147,7 @@ private:
 	ListTransaction _trans;
 public:
 	User();
-	User(string, string, Name, Money, bool);
+	User(string, string, Name, Money);
 	User(const User&);
 	string getId();
 	Name getName();
@@ -174,14 +175,14 @@ string Admin::getUser() {
 }
 
 bool isCurrent(const Admin a, string pw) {
-	if (a._password == pw)
+	if (decoding(a._password) == pw)
 		return true;
 	return false;
 }
 
 User::User() : _id("00000000000000"), _password("123456"), _fullname(Name()), _money(Money()) {}
 
-User::User(string _strId, string _pw, Name _newname, Money _mn, bool active) {
+User::User(string _strId, string _pw, Name _newname, Money _mn) {
 	_id = _strId;
 	_password = _pw;
 	_fullname = _newname;
@@ -371,7 +372,7 @@ void ListAccount::saveCard(string path) {
 		Node<User>* curr = list.getHead();
 		while (curr) {
 			fout << curr->getData()._id << '\n'
-				<< curr->getData()._password << '\n';
+				<< decoding(curr->getData()._password) << '\n';
 			curr = curr->getNext();
 		}
 	}
@@ -383,6 +384,7 @@ void ListAccount::saveCard(string path) {
 
 void ListAccount::load(string path, string pathCard) {
 	ifstream fin(pathCard);
+	list.clear();
 	if (fin.is_open()) {
 		string id, pw;
 		while (getline(fin, id)) {
@@ -392,7 +394,7 @@ void ListAccount::load(string path, string pathCard) {
 			if (finAcc.is_open()) {
 				getline(finAcc, temp._id);
 				finAcc >> temp._fullname;
-				temp._password = pw;
+				temp._password = encoding(pw);
 				finAcc >> temp._money;
 				finAcc.ignore();
 				list.addTail(temp);
@@ -437,7 +439,7 @@ void ListAccount::display(int start, int end, short x, short y, LinkedList<strin
 					setTextColor(RED);
 				}
 				else {
-					setTextColor(WHITE);
+					setTextColor(BLACK);
 				}
 				gotoxy(x + 1, y);
 				cout << index + 1;
@@ -480,7 +482,7 @@ int ListTransaction::getSize() {
 
 void ListTransaction::load(string path) {
 	ifstream fin(path);
-
+	list.clear();
 	if (fin.is_open()) {
 		while (!fin.eof()) {
 			string type;
@@ -519,11 +521,13 @@ void ListTransaction::save(string path) {
 
 void ListAdministrator::load(string path) {
 	ifstream fin(path);
+	list.clear();
 	if (fin.is_open()) {
 		while (!fin.eof()) {
 			Admin temp;
 			getline(fin, temp._id);
 			getline(fin, temp._password);
+			temp._password = encoding(temp._password);
 			list.addTail(temp);
 		}
 	}
@@ -538,7 +542,7 @@ void ListAdministrator::save(string path) {
 		Node<Admin>* curr = list.getHead();
 		while (curr) {
 			fout << curr->getData()._id << '\n'
-				<< curr->getData()._password << '\n';
+				<< decoding(curr->getData()._password) << '\n';
 			curr = curr->getNext();
 		}
 	}

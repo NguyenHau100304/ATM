@@ -2,7 +2,7 @@
 #include "Display.h"
 #include <fstream>
 #include <string>
-void printArt(short x, short y, string path, int color, int bgcolor = LIGHT_GREEN) {
+void printArt(short x, short y, string path, int color, int bgcolor = YELLOW) {
 	gotoxy(x, y);
 	ifstream fin(path);
 	if (fin.good()) {
@@ -68,7 +68,7 @@ void drawLoading(short x, short y, short width, short color, short delay) {
 
 
 void loadingScreen(string title, short delay) {
-	setConsoleBackgroundColor(BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
 	gotoxy(g_loadingX, g_loadingY - 1);
 	cout << title;
@@ -87,18 +87,18 @@ void printListPerPage(int page, int sort) {
 		"SO DU"
 	};
 	for (int i = 0; i < 2; ++i) {
-		setTextBGColor(LIGHT_BLUE);
-		setTextColor(WHITE);
+		setTextBGColor(WHITE);
+		setTextColor(BLACK);
 		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
 		cout << NAMETAGs[i];
 	}
 	if(sort > 1){
-		setTextBGColor(LIGHT_GREEN);
-		setTextColor(WHITE);
+		setTextBGColor(LIGHT_BLUE);
+		setTextColor(BLACK);
 		gotoxy(TAGs[sort - 2].x + ((TAGs[sort - 1].x - TAGs[sort - 2].x) / 2) - NAMETAGs[sort - 2].length() / 2 - 1, TAGs[sort - 2].y);
 		cout << NAMETAGs[sort - 2];
 	}
-	setTextBGColor(LIGHT_BLUE);
+	setTextBGColor(WHITE);
 	short x = 0, y = 5;
 	for (int i = 0; i < 24; ++i) {
 		gotoxy(x + 1, y);
@@ -113,23 +113,23 @@ void printListPerPage(int page, int sort) {
 		cout << setfill(9);
 		++y;
 	}
-	listAccount.display(23 * (page - 1), 23 * page, 0, 5, listIdBlocked);
+	listAccount.display(24 * (page - 1), 24 * page - 1, 0, 5, listIdBlocked);
 }
 void drawTableList() {
-	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_INTENSITY);
-	setTextBGColor(LIGHT_BLUE);
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	setTextBGColor(WHITE);
 	clrscr();
 	setTextColor(RED);
 	gotoxy(19, 0);
 	cout << "  DANH SACH CAC TAI KHOAN";
 	gotoxy(4, 1);
-	setTextColor(GREEN);
+	setTextColor(BLUE);
 	cout << "RIGHT/LEFT turn page - PAGE UP/PAGE DOWN change sort - ESC quit";
 
 
 	setTextColor(BLACK);
 	gotoxy(0, 2);
-	drawBorder(0, 2, 82, 28, 1, WHITE, LIGHT_BLUE);
+	drawBorder(0, 2, 82, 28, 1, BLACK, WHITE);
 	gotoxy(0, 4);
 	cout << char(204); // nga 3 trai
 	gotoxy(81, 4);

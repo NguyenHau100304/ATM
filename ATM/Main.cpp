@@ -3,7 +3,8 @@
 int main(){
 	SetConsoleTitleA("ATM");
 	init();
-	//runProcess();
-	addUserToList();
+	runProcess();
+	//addUserToList();
+	//printListUsers();
     return 0;
 }
