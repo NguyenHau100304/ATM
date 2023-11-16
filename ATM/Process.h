@@ -68,9 +68,9 @@ void printListUsers() {
 	gotoxy(83, 12);
 	cout << "ARROW RIGHT - turn page right";
 	gotoxy(83, 14);
-	cout << "PAGE UP - change sort greater";
+	cout << "ARROW UP - change sort greater";
 	gotoxy(83, 16);
-	cout << "PAGE DOWN - change sort less";
+	cout << "ARROW DOWN - change sort less";
 	gotoxy(83, 18);
 	cout << "ESC - quit";
 
@@ -84,44 +84,42 @@ void printListUsers() {
 			char c = _getch();
 			if (c == 0)
 				c = _getch();
-			if (c == PAGE_DOWN || c == PAGE_UP) {
-				if (c == PAGE_UP)
+
+			if (c == -32) {
+				c = _getch();
+				if (c == KEY_UP)
 				{
 					setTextColor(AQUA);
 					setTextBGColor(YELLOW);
 					gotoxy(83, 14);
-					cout << "PAGE UP - change sort greater";
+					cout << "ARROW UP - change sort greater";
 					Beep(600, 50);
 					Sleep(50);
 					setTextBGColor(WHITE);
 					gotoxy(83, 14);
-					cout << "PAGE UP - change sort greater";
+					cout << "ARROW UP - change sort greater";
 					if (chooseSort < 0)
 						chooseSort = 0;
 					else if (++chooseSort == 3)
 						chooseSort = 0;
 				}
-				else {
+				else if(c == KEY_DOWN) {
 					setTextColor(AQUA);
 					setTextBGColor(YELLOW);
 					gotoxy(83, 16);
-					cout << "PAGE DOWN - change sort less";
+					cout << "ARROW DOWN - change sort less";
 					Beep(600, 50);
 					Sleep(50);
 					setTextBGColor(WHITE);
 					gotoxy(83, 16);
-					cout << "PAGE DOWN - change sort less";
+					cout << "ARROW DOWN - change sort less";
 					if (chooseSort > 0)
 						chooseSort = 0;
 					else if (--chooseSort == -3) {
 						chooseSort = 0;
 					}
 				}
-				goto __FORMATLIST__;
-			}
-			if (c == -32) {
-				c = _getch();
-				if (c == KEY_RIGHT) {
+				else if (c == KEY_RIGHT) {
 					setTextColor(AQUA);
 					setTextBGColor(YELLOW);
 					gotoxy(83, 12);
@@ -134,7 +132,7 @@ void printListUsers() {
 					if (++page == maxPage + 1)
 						page = 1;
 				}
-				if (c == KEY_LEFT) {
+				else if (c == KEY_LEFT) {
 					setTextColor(AQUA);
 					setTextBGColor(YELLOW);
 					gotoxy(83, 10);
