@@ -127,7 +127,7 @@ void loadingScreen(string title, short delay) {
 	drawLoading(g_loadingX + 1, g_loadingY + 1, g_loadingWidth - 1, RED, 1);
 }
 
-void printListPerPage(int page, int sort, ListAccount& list) {
+void printListPerPage(int page, int sort, ListAccount& list, LinkedList<string>& listIdBlocked) {
 	POINT TAGs[3] = {
 		{20, 3},
 		{45, 3},

@@ -10,8 +10,13 @@ using std::ifstream;
 using std::ofstream;
 using std::setw;
 
+
 class User;
 class Admin;
+
+
+
+
 bool isCurrent(const Admin, string);
 bool isCurrent(const User, string);
 int indexOf(string f, string s);
@@ -36,10 +41,10 @@ public:
 
 
 class Transaction {
-protected:
 	friend class ListTransaction;
+	friend class ATM;
+protected:
 	string _type;
-	
 public:
 	Transaction();
 	Transaction(string);
@@ -52,7 +57,6 @@ public:
 class WithrawATM : public Transaction {
 	friend class ListTransaction;
 	Money _wrMoney;
-	
 public:
 	WithrawATM();
 	WithrawATM(User, Money);
@@ -66,7 +70,6 @@ class Transfer : public Transaction {
 	friend class ListTransaction;
 	Money _trsmoney;
 	string _targetId;
-	
 public:
 	Transfer();
 	Transfer(User, string, Money);
@@ -88,8 +91,9 @@ public:
 
 
 class ListAdministrator {
+	friend class ATM;
+private:
 	LinkedList<Admin> list;
-	
 public:
 	ListAdministrator();
 	~ListAdministrator();
@@ -101,7 +105,11 @@ public:
 };
 
 class ListAccount {
+	friend class ATM;
+	friend class Transaction;
+private:
 	LinkedList<User> list;
+	User& getCurrentUser(string);
 public:
 	ListAccount();
 	~ListAccount();
@@ -123,8 +131,9 @@ public:
 };
 
 class ListTransaction {
+	friend class ATM;
+private:
 	LinkedList<Transaction*> list;
-
 public:
 	void load(string);
 	void save(string);
@@ -137,11 +146,12 @@ public:
 
 
 class User {
-	friend class ListAccount;
+	friend class ATM;
 	friend class Transaction;
 	friend class WithrawATM;
 	friend class Transfer;
-	friend class Card;
+	friend class ListTransaction;
+	friend class ListAccount;
 private:
 	string _id;
 	string _password;
@@ -164,7 +174,7 @@ public:
 
 using namespace std;
 
-Admin::Admin() : _id("Admin"), _password("123456") {}
+Admin::Admin() : _id("none"), _password("123456") {}
 
 Admin::Admin(string _strId, string _strPw) : _id(_strId), _password(_strPw) {}
 Admin::Admin(const Admin& a) {
@@ -318,6 +328,18 @@ int ListAccount::getSize() {
 User ListAccount::getUserAt(int index) {
 	return list[index]->getData();
 }
+
+User& ListAccount::getCurrentUser(string id) {
+	Node<User>* curr = list._pHead;
+
+	while (curr) {
+		if (curr->getData()._id == id)
+			return curr->_data;
+		curr = curr->_pNext;
+	}
+	return *(new User());
+}
+
 User ListAccount::getUserById(string id) {
 	Node<User>* curr = list._pHead;
 

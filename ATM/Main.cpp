@@ -1,12 +1,7 @@
-﻿#include "Process.h"
+﻿#include "Server.h"
 
 int main(){
 	SetConsoleTitle(L"ATM");
-	init();
-	runProcess();
-	//addUserToList();
-	//printListUsers();
-	//deleteUser();
-	//unblockUser();
+	atm.runProcess();
     return 0;
 }
