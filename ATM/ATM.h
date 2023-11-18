@@ -37,7 +37,6 @@ public:
 
 
 void ATM::init() {
-	resizeConsole(1100, 650);
 	listAdmin.load("./data/Admin.txt");
 	listAccount.load("./data/", "./data/TheTu.txt");
 	listIdBlocked.load("./data/AccountBlocked/ALL.txt");
@@ -340,11 +339,17 @@ void ATM::printListUsers() {
 void ATM::addUserToList() {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
+__INIT__:
+	bool isVND = true;
+	string input[5] = {
+	 "", "", "", ""
+	};
+__BACK__:
 	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+	printArt(17, 0, "./art/MenuAdmin.txt", RED, YELLOW);
 
 
 	drawBorder(g_initMenuX + 25, g_initMenuY + 1, 28, 3, 1, RED, LIGHT_GREEN);
@@ -381,17 +386,37 @@ void ATM::addUserToList() {
 		gotoxy(hoverText[i].x + 12, hoverText[i].y);
 		cout << setFill(30);
 		hoverText[i].x += 12;
+		if (!input[i].empty()) {
+			setTextColor(BLACK);
+			if(i != 3)
+				gotoxy(hoverText[i].x, hoverText[i].y);
+			else
+				gotoxy(hoverText[3].x + 13, hoverText[3].y);
+			cout << input[i];
+		}else if (i == 3) {
+			isVND = true;
+			gotoxy(hoverText[3].x + 13, hoverText[3].y);
+			setTextColor(BLACK);
+			input[3] = "VND";
+			cout << "VND";
+		}
 	}
+
+	gotoxy(hoverText[3].x + 11, hoverText[3].y);
+	cout << char(174);
+	gotoxy(hoverText[3].x + 17, hoverText[3].y);
+	cout << char(175);
+
 
 	gotoxy(hoverText[0].x, hoverText[0].y + 1);
 	setTextColor(RED);
 	setTextBGColor(LIGHT_GREEN);
-	cout << "F3 generate new ID";
+	cout << "F5 generate new ID";
 
-	gotoxy(hoverText[3].x + 16, hoverText[3].y + 2);
+	gotoxy(hoverText[3].x + 8, hoverText[3].y + 2);
 	setTextBGColor(YELLOW);
 	setTextColor(RED);
-	cout << "TAO TAI KHOAN";
+	cout << "TAO TAI KHOAN - Enter";
 
 	//----------------------------------------------------------------
 	setTextBGColor(GRAY);
@@ -399,9 +424,7 @@ void ATM::addUserToList() {
 	gotoxy(hoverText[0].x, hoverText[0].y);
 	showCursor(true);
 	char c = '\0';
-	string input[5] = {
-		 "", "", "", ""
-	};
+
 
 	do {
 		input[0] = getRandomId();
@@ -411,19 +434,15 @@ void ATM::addUserToList() {
 
 	int curr = 1;
 	while (true) {
-		setCursorColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		setCursorColor(FOREGROUND_RED);
 		// MOVE CURSOR
-		if (curr != 4) {
-			gotoxy(hoverText[curr].x + input[curr].length(), hoverText[curr].y);
+		gotoxy(hoverText[curr].x + input[curr].length(), hoverText[curr].y);
+		if (curr != 3)
 			showCursor(true);
-		}
-		else {
-			gotoxy(hoverText[3].x + 16, hoverText[3].y + 2);
-			setTextBGColor(GREEN);
-			setTextColor(RED);
-			cout << "TAO TAI KHOAN";
+		else
 			showCursor(false);
-		}
+		
+			
 		if (_kbhit()) {
 			setTextBGColor(BLACK);
 			setTextColor(GRAY);
@@ -444,7 +463,7 @@ void ATM::addUserToList() {
 				c = _getch();
 
 			//F3
-			if (c == KEY_F3) {
+			if (c == KEY_F5) {
 				do {
 					input[0] = getRandomId();
 				} while (listAccount.isHasUser(input[0]));
@@ -457,55 +476,82 @@ void ATM::addUserToList() {
 
 			// CHUYEN DONG
 			if (c == '\r' || c == -32) {
-				if (c == -32)
+				if (curr == 3) {
+					setTextBGColor(GRAY);
+					setTextColor(BLACK);
+					gotoxy(hoverText[3].x + 13, hoverText[3].y);
+					cout << input[3];
+				}
+				if (c == -32) {
 					c = _getch();
-				if (c == KEY_UP)
-					if (--curr == 0)
-						curr = 4;
-				if (c == KEY_DOWN)
-					if (++curr == 5)
-						curr = 1;
+					if (c == KEY_UP)
+						if (--curr == 0)
+							curr = 3;
+					if (c == KEY_DOWN)
+						if (++curr >= 4)
+							curr = 1;
+					if (c == KEY_LEFT || c == KEY_RIGHT) {
+						if (curr == 3) {
+							setTextBGColor(GRAY);
+							setTextColor(BLACK);
+							gotoxy(hoverText[curr].x + 13, hoverText[curr].y);
+							if (isVND) {
+								cout << "USD";
+								input[curr] = "USD";
+								isVND = false;
+							}
+							else {
+								cout << "VND";
+								input[curr] = "VND";
+								isVND = true;
+							}
+						}
+					}
+				}
 				if (c == '\r')
 					if (++curr >= 4) {
-						if (!input[3].empty() && !input[1].empty() && !input[2].empty()) {
-							if (input[3] != "USD" && input[3] != "VND")
-								input[3] = "VND";
-							User newUser(input[0], encoding("123456"), Name(input[1]), Money(stringToInt(input[2]), input[3]));
-							listAccount.append(newUser);
-							listAccount.saveCard("./data/TheTu.txt");
-							listAccount.save("./data/");
-							Beep(1000, 200);
-
-							return;
+						Money mon(stringToInt(input[2]), input[3]);
+						if (!input[3].empty() && !input[1].empty() && !input[2].empty() && mon.getAmount() >= 50000) {
+							if (confirmProcess("Ban co chac muon them tai khoan ?")) {
+								User newUser(input[0], encoding("123456"), Name(input[1]), mon);
+								listAccount.append(newUser);
+								listAccount.saveCard("./data/TheTu.txt");
+								listAccount.save("./data/");
+								createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+								gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
+								setTextBGColor(AQUA);
+								setTextColor(BLACK);
+								cout << "DA THEM TAI KHOAN";
+								Beep(1000, 200);
+								_getch();
+								return;
+							}
+							else
+								goto __BACK__;
 						}
 						else {
 							Beep(1000, 200);
 							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
 							setTextBGColor(LIGHT_GREEN);
 							setTextColor(RED);
-							cout << "                             ";
+							cout << "                                   ";
 							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
-							cout << "Khong duoc bo trong ";
 							if (input[1].empty())
-								cout << "o Ho Ten";
+								cout << "Khong duoc bo trong o Ho Ten";
 							else if (input[2].empty())
-								cout << "o So Du";
+								cout << "Khong duoc bo trong o So Du";
 							else if (input[3].empty())
-								cout << "o Tien Te";
+								cout << "Khong duoc bo trong o Tien Te";
+							else if (mon.getAmount() < 50000)
+								cout << "Tien nap vao phai it nhat 50.000VND";
 							curr = 1;
 							showCursor(false);
 							_getch();
 							gotoxy(hoverText[3].x + 2, hoverText[3].y + 1);
-							cout << "                             ";
+							cout << "                                   ";
 							showCursor(true);
 						}
 					}
-				if (curr != 4) {
-					gotoxy(hoverText[3].x + 16, hoverText[3].y + 2);
-					setTextBGColor(YELLOW);
-					setTextColor(RED);
-					cout << "TAO TAI KHOAN";
-				}
 			}//BACKSPACE
 			else if (c == '\b') {
 				setTextBGColor(GRAY);
@@ -518,24 +564,45 @@ void ATM::addUserToList() {
 			}
 			// NHAP KY TU
 			else {
-				if (curr != 4) {
 					setTextBGColor(GRAY);
 					setTextColor(BLACK);
 					if (curr == 1) {
-						if (isWord(c) || c == 32) {
+						if ((isWord(c) || c == 32) && input[curr].length() < 25) {
+							if (c == 32) {
+								if (input[curr].empty())
+									continue;
+								else if (input[curr][input[curr].length() - 1] == 32)
+									continue;
+							}
 							cout << char(toupper(c));
 							input[curr].push_back(toupper(c));
+
 						}
 					}
-					else if (curr == 2 && isNumber(c)) {
+					else if (curr == 2 && isNumber(c) && input[curr].length() < 11) {
 						cout << c;
 						input[curr].push_back(c);
 					}
 					else if (curr == 3) {
-						cout << char(toupper(c));
-						input[curr].push_back(char(toupper(c)));
+						gotoxy(hoverText[curr].x + 13, hoverText[curr].y);
+						if (isVND) {
+							cout << "USD";
+							input[curr] = "USD";
+							isVND = false;
+						}
+						else {
+							cout << "VND";
+							input[curr] = "VND";
+							isVND = true;
+						}
 					}
-				}
+				
+			}
+			if (curr == 3) {
+				setTextBGColor(YELLOW);
+				setTextColor(BLACK);
+				gotoxy(hoverText[3].x + 13, hoverText[3].y);
+				cout << input[3];
 			}
 
 		}
@@ -554,7 +621,7 @@ __BACK__:
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+	printArt(17, 0, "./art/MenuAdmin.txt", RED, YELLOW);
 
 
 	drawBorder(g_initMenuX + 24, g_initMenuY + 1, 29, 3, 1, RED, LIGHT_GREEN);
@@ -709,7 +776,7 @@ __BACK__:
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, RED);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+	printArt(17, 0, "./art/MenuAdmin.txt", RED, YELLOW);
 
 
 	drawBorder(g_initMenuX + 22, g_initMenuY + 1, 32, 3, 1, RED, LIGHT_GREEN);
@@ -868,7 +935,7 @@ __INIT__:
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', WHITE, RED);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "MenuAdmin.txt", RED, YELLOW);
+	printArt(17, 0, "./art/MenuAdmin.txt", RED, YELLOW);
 	/***********************************************
 
 					CREATE BUTTON
@@ -992,11 +1059,11 @@ void ATM::loginPasswordAdmin(Admin& admin) {
 LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
 
 
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
-	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "./art/ATM.txt", RED, LIGHT_GREEN);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, RED);
 
 	setTextColor(RED);
@@ -1144,12 +1211,12 @@ __INIT__:
 	
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
 
 	
 
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
-	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "./art/ATM.txt", RED, LIGHT_GREEN);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, RED);
 
 	setTextColor(RED);
@@ -1233,6 +1300,7 @@ __INIT__:
 						setTextColor(LIGHT_BLUE);
 						cout << "NEXT - Enter";
 						Beep(800, 50);
+						showCursor(false);
 						Sleep(50);
 						loginPasswordAdmin(admin);
 						goto __INIT__;
@@ -1277,7 +1345,7 @@ __INIT__:
 	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', WHITE, LIGHT_BLUE);
 	setTextBGColor(YELLOW);
-	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
 
 
 
@@ -1355,7 +1423,7 @@ __INIT__:
 	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, LIGHT_BLUE);
 	setTextBGColor(YELLOW);
-	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
 
 	drawBorder(g_initMenuX + 24, g_initMenuY + 1, 29, 3, 1, AQUA, LIGHT_GREEN);
 	gotoxy(g_adminMenuX + 26, g_adminMenuY + 2);
@@ -1391,7 +1459,6 @@ __INIT__:
 	cout << setFill(29);
 	gotoxy(hoverText.x + 26, hoverText.y);
 	cout << "VND";
-	hoverText.x++;
 
 	bool isInput = true;
 	string inputId = "";
@@ -1414,7 +1481,7 @@ __INIT__:
 			if (c == '\r' && !inputId.empty()) {
 				int money = stringToInt(inputId);
 				if (money >= 50000 && money % 50000 == 0 && user.getAmount().getAmount() - money >= 50000) {
-					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
+					createBox(hoverText.x , hoverText.y + 1, 29, 6, YELLOW);
 					gotoxy(hoverText.x, hoverText.y + 1);
 					setTextBGColor(YELLOW);
 
@@ -1440,7 +1507,7 @@ __INIT__:
 					setTextBGColor(LIGHT_BLUE);
 					setTextColor(RED);
 					cout << "RUT - ENTER";
-
+					showCursor(false);
 					c = _getch();
 
 					if (c == ESC) {
@@ -1526,7 +1593,7 @@ __BACK__:
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, LIGHT_BLUE);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
 
 
 	drawBorder(g_initMenuX + 26, g_initMenuY + 1, 26, 3, 1, RED, LIGHT_GREEN);
@@ -1546,7 +1613,19 @@ __BACK__:
 	setTextColor(BLACK);
 
 
-	POINT hoverText = { g_adminMenuX + 20, g_adminMenuY + 6 };
+
+
+	POINT hoverText = { g_adminMenuX + 20, g_adminMenuY + 7 };
+
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(RED);
+	gotoxy(hoverText.x - 3, hoverText.y - 2);
+	cout << "SO DU: ";
+	setTextBGColor(GRAY);
+	setTextColor(BLACK);
+	gotoxy(hoverText.x + 4, hoverText.y - 2);
+	cout << " " << user._money << " ";
+
 	setTextBGColor(LIGHT_GREEN);
 	gotoxy(hoverText.x - 5, hoverText.y);
 	cout << "Nhap ID: ";
@@ -1588,64 +1667,64 @@ __BACK__:
 					isBlock = listIdBlocked.search(inputId) != NULL;
 					if (isBlock)
 						goto __EXCEPT__;
-					createBox(hoverText.x - 2, hoverText.y + 2, 32, 8, AQUA);
-					drawBorder(hoverText.x - 2, hoverText.y + 2, 32, 9, 32, LIGHT_BLUE, WHITE);
+					createBox(hoverText.x - 2, hoverText.y + 1, 32, 8, AQUA);
+					drawBorder(hoverText.x - 2, hoverText.y + 1, 32, 9, 32, LIGHT_BLUE, WHITE);
 					setTextBGColor(AQUA);
 
-					gotoxy(hoverText.x, hoverText.y + 3);
+					gotoxy(hoverText.x, hoverText.y + 2);
 					setTextColor(BLACK);
 					cout << "TEN TAI KHOAN: ";
-					gotoxy(hoverText.x, hoverText.y + 4);
+					gotoxy(hoverText.x, hoverText.y + 3);
 					setTextColor(RED);
 					cout << Temp.getName() << '\n';
 					
-					gotoxy(hoverText.x, hoverText.y + 5);
+					gotoxy(hoverText.x, hoverText.y + 4);
 					setTextColor(BLACK);
 					cout << "NHAP SO TIEN: ";
-					gotoxy(hoverText.x, hoverText.y + 6);
+					gotoxy(hoverText.x, hoverText.y + 5);
 					setTextBGColor(GRAY);
 					cout << setFill(28);
 
-					gotoxy(hoverText.x + 25, hoverText.y + 6);
+					gotoxy(hoverText.x + 25, hoverText.y + 5);
 					cout << "VND";
 
 
-					gotoxy(hoverText.x - 1, hoverText.y + 9);
+					gotoxy(hoverText.x - 1, hoverText.y + 8);
 					setTextBGColor(YELLOW);
 					setTextColor(LIGHT_GREEN);
 					cout << "HUY - ESC";
-					gotoxy(hoverText.x + 15, hoverText.y + 9);
+					gotoxy(hoverText.x + 15, hoverText.y + 8);
 					setTextBGColor(YELLOW);
 					setTextColor(LIGHT_GREEN);
 					cout << "CHUYEN - ENTER";
 					string inputMn;
 					while (true) {
 						showCursor(true);
-						gotoxy(hoverText.x + inputMn.length(), hoverText.y + 6);
+						gotoxy(hoverText.x + inputMn.length(), hoverText.y + 5);
 						if (_kbhit()) {
 							c = _getch();
 							if (c == ESC) {
 								Beep(800, 50);
-								gotoxy(hoverText.x - 1, hoverText.y + 9);
+								gotoxy(hoverText.x - 1, hoverText.y + 8);
 								setTextBGColor(LIGHT_RED);
 								setTextColor(BLUE);
 								cout << "HUY - ESC";
 								inputMn.clear();
 								showCursor(false);
 								Sleep(50);
-								createBox(hoverText.x - 2, hoverText.y + 2, 32, 9, LIGHT_GREEN);
+								createBox(hoverText.x - 2, hoverText.y + 1, 32, 9, LIGHT_GREEN);
 								gotoxy(hoverText.x + inputId.length(), hoverText.y);
 								showCursor(true);
 								break;
 							}
 							else if (c == '\r' && !inputMn.empty()) {
-								gotoxy(hoverText.x + 15, hoverText.y + 9);
+								gotoxy(hoverText.x + 15, hoverText.y + 8);
 								setTextBGColor(RED);
 								setTextColor(LIGHT_BLUE);
 								Beep(800, 50);
 								cout << "CHUYEN - ENTER";
 								Sleep(50);
-								gotoxy(hoverText.x + 15, hoverText.y + 9);
+								gotoxy(hoverText.x + 15, hoverText.y + 8);
 								setTextBGColor(YELLOW);
 								setTextColor(LIGHT_GREEN);
 								cout << "CHUYEN - ENTER";
@@ -1669,7 +1748,7 @@ __BACK__:
 								else {
 									setTextBGColor(AQUA);
 									setTextColor(RED);
-									gotoxy(hoverText.x, hoverText.y + 7);
+									gotoxy(hoverText.x, hoverText.y + 6);
 									if (money < 50000)
 										cout << "So tien it nhat la 50.000VND";
 									else if (money > user._money.getAmount())
@@ -1682,7 +1761,7 @@ __BACK__:
 									_getch();
 									showCursor(true);
 									setTextBGColor(AQUA);
-									gotoxy(hoverText.x, hoverText.y + 7);
+									gotoxy(hoverText.x, hoverText.y + 6);
 									cout << "                             ";
 								}
 							}
@@ -1696,7 +1775,7 @@ __BACK__:
 							else if (isNumber(c) && inputMn.length() < 11) {
 								setTextBGColor(GRAY);
 								setTextColor(BLACK);
-								gotoxy(hoverText.x + inputMn.length(), hoverText.y + 6);
+								gotoxy(hoverText.x + inputMn.length(), hoverText.y + 5);
 								cout << c;
 								inputMn.push_back(c);
 							}
@@ -1755,7 +1834,7 @@ __INIT__:
 	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', WHITE, LIGHT_BLUE);
 	setTextBGColor(YELLOW);
 
-	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
 	/***********************************************
 
 					CREATE BUTTON
@@ -1874,11 +1953,11 @@ void ATM::loginPasswordUser(User& user) {
 LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
 
 
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
-	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "./art/ATM.txt", RED, LIGHT_GREEN);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, LIGHT_BLUE);
 
 	setTextColor(BLUE);
@@ -2025,11 +2104,11 @@ void ATM::loginUserMenu() {
 LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
 
 
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
-	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "./art/ATM.txt", RED, LIGHT_GREEN);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, LIGHT_BLUE);
 
 	setTextColor(BLUE);
@@ -2129,6 +2208,7 @@ LOGIN:
 							setTextColor(LIGHT_BLUE);
 							cout << "NEXT - Enter";
 							Beep(800, 50);
+							showCursor(false);
 							Sleep(50);
 							loginPasswordUser(user);
 							goto LOGIN;
@@ -2184,7 +2264,7 @@ __INIT__:
 	createBox(g_initMenuX, g_initMenuY, g_initMenuWidth, g_initMenuHeight, LIGHT_GREEN);
 	drawBorder(g_initMenuX, g_initMenuY, g_initMenuWidth, g_initMenuHeight, '*', YELLOW, BLUE);
 	setTextBGColor(YELLOW);
-	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
 
 	drawBorder(g_initMenuX + 25, g_initMenuY + 2, 28, 3, '*', RED, LIGHT_GREEN);
 
@@ -2215,7 +2295,7 @@ __INIT__:
 	int runWord = 0, runWordL = 0;
 
 	string runLargeName[6];
-	ifstream fin("FullNameBank.txt");
+	ifstream fin("./art/FullNameBank.txt");
 	for (int i = 0; i < 6; ++i) {
 		getline(fin, runLargeName[i]);
 		runLargeName[i] = setFill(79) + runLargeName[i];

@@ -143,7 +143,7 @@ std::istream& operator>> (std::istream& in, DateTime& d) {
 	return in;
 }
 std::ostream& operator<< (std::ostream& out, DateTime d) {
-	out << d._h << ':' << d._m << ':' << d._s << ' ' << d._day << '/' << d._month << '/' << d._year << '\n';
+	out << d._h << ':' << d._m << ':' << d._s << ' ' << d._day << '/' << d._month << '/' << d._year;
 	return out;
 }
 

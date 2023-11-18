@@ -9,6 +9,8 @@
 
 #define KEY_F3 61
 
+#define KEY_F5 63
+
 #define ESC  27
 
 #define KEY_UP 72

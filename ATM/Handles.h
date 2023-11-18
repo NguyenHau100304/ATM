@@ -67,7 +67,7 @@ public:
 	void load(ifstream&);
 	Money getMoney();
 	void display() {
-		cout << _type << ' ' << _wrMoney << '\n';
+		cout << _type << ' ' << _time << ' ' << _wrMoney << '\n';
 	}
 };
 
@@ -85,7 +85,7 @@ public:
 	string getTargetId();
 	User getTarget(ListAccount&);
 	void display() {
-		cout << _type << ' ' << _trsmoney << '\n';
+		cout << _type << ' ' << _time << " -" << _trsmoney << ' ' << _targetId << '\n';
 	}
 };
 
@@ -102,7 +102,7 @@ public:
 	Money getMoney();
 	string getTargetId();
 	void display() {
-		cout << _type << ' ' << _trsmoney << '\n';
+		cout << _type << ' ' << _time << " +" << _trsmoney << ' ' << _targetId << '\n';
 	}
 };
 
@@ -309,7 +309,7 @@ Money WithrawATM::getMoney() {
 void WithrawATM::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
-		fout << _time;
+		fout << _time << '\n';
 		fout << _wrMoney.getMoney() << ' ' << _wrMoney.getType() << '\n';
 	}
 	else
@@ -329,7 +329,7 @@ void WithrawATM::load(ifstream& fin) {
 void Transfer::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
-		fout << _time;
+		fout << _time << '\n';
 		fout << _targetId << '\n';
 		fout << _trsmoney.getMoney() << ' ' << _trsmoney.getType() << '\n';
 	}
@@ -373,7 +373,7 @@ User Transfer::getTarget(ListAccount& list) {
 void BeTransfer::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
-		fout << _time;
+		fout << _time << '\n';
 		fout << _targetId << '\n';
 		fout << _trsmoney.getMoney() << ' ' << _trsmoney.getType() << '\n';
 	}
@@ -696,7 +696,6 @@ void ListTransaction::save(string path) {
 			curr = curr->_pNext;
 		}
 	}
-
 	fout.close();
 }
 
