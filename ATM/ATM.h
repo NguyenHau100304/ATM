@@ -10,6 +10,7 @@ private:
 	ListAdministrator listAdmin;
 	ListAccount listAccount;
 	LinkedList<string> listIdBlocked;
+
 	void init();
 	void waiting(int second);
 	void printListPerPage(int page, int sort, ListAccount& list, LinkedList<string>& listIdBlocked);
@@ -20,6 +21,7 @@ private:
 	void adminMenu();
 	void printInfoUser(User& user);
 	void transfer(User& user);
+	void printListTrans(User& user);
 	void withrawMoney(User& user);
 	void userMenu(User& user);
 	void loginPasswordAdmin(Admin&);
@@ -1189,9 +1191,10 @@ LOGIN:
 				Sleep(50);
 				return;
 			}
-			if (c == 0 || c == 224)
+			if (c == 0 || c == 224 || c == -32) {
 				c = _getch();
-
+				continue;
+			}
 			if (c == '\r') {
 				if (inputId.empty()) {
 					Beep(1000, 200);
@@ -1554,34 +1557,36 @@ __INIT__:
 			}
 			if (c == '\r' && !inputId.empty()) {
 				User Temp = listAccount.getUserById(inputId);
-				bool isNotBlock = false;
+				bool isBlock = false;
 				if (Temp.getId() != "00000000000000") {
-					isNotBlock = listIdBlocked.search(inputId) == NULL;
-					if (isNotBlock)
+					isBlock = listIdBlocked.search(inputId) != NULL;
+					if (isBlock)
 						goto __EXCEPT__;
-					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
-					gotoxy(hoverText.x, hoverText.y + 1);
-					setTextBGColor(YELLOW);
+					createBox(hoverText.x - 2, hoverText.y + 2, 32, 8, AQUA);
+					drawBorder(hoverText.x - 2, hoverText.y + 2, 32, 9, 32, LIGHT_BLUE, WHITE);
+					setTextBGColor(AQUA);
 
-					setTextColor(BLACK);
-					cout << "TEN TAI KHOAN: ";
-					gotoxy(hoverText.x, hoverText.y + 2);
-					setTextColor(RED);
-					cout << Temp.getName() << '\n';
 					gotoxy(hoverText.x, hoverText.y + 3);
 					setTextColor(BLACK);
-					cout << "SO DU: ";
+					cout << "TEN TAI KHOAN: ";
 					gotoxy(hoverText.x, hoverText.y + 4);
 					setTextColor(RED);
-					cout << Temp.getAmount();
-
+					cout << Temp.getName() << '\n';
+					
+					gotoxy(hoverText.x, hoverText.y + 5);
+					setTextColor(BLACK);
+					cout << "NHAP SO TIEN: ";
 					gotoxy(hoverText.x, hoverText.y + 6);
-					setTextBGColor(LIGHT_BLUE);
-					setTextColor(RED);
+					setTextBGColor(GRAY);
+					cout << setFill(28);
+
+					gotoxy(hoverText.x, hoverText.y + 9);
+					setTextBGColor(YELLOW);
+					setTextColor(LIGHT_GREEN);
 					cout << "HUY - ESC";
-					gotoxy(hoverText.x + 14, hoverText.y + 6);
-					setTextBGColor(LIGHT_BLUE);
-					setTextColor(RED);
+					gotoxy(hoverText.x + 14, hoverText.y + 9);
+					setTextBGColor(YELLOW);
+					setTextColor(LIGHT_GREEN);
 					cout << "MO KHOA - ENTER";
 
 					c = _getch();
@@ -1620,8 +1625,8 @@ __INIT__:
 					gotoxy(hoverText.x, hoverText.y + 1);
 					setTextBGColor(LIGHT_GREEN);
 					setTextColor(RED);
-					if (isNotBlock)
-						cout << "Tai khoan nay khong bi khoa";
+					if (isBlock)
+						cout << "Tai khoan nay bi khoa";
 					else
 						cout << "Tai khoan khong ton tai!";
 					Beep(1000, 200);
@@ -1651,6 +1656,11 @@ __INIT__:
 
 }
 
+void ATM::printListTrans(User& user) {
+	clrscr();
+	user._trans.display();
+	_getch();
+}
 
 void ATM::userMenu(User& user) {
 __INIT__:
@@ -1750,12 +1760,12 @@ __INIT__:
 					break;
 				}
 				case 3: {
-
+					printListTrans(user);
 					goto __INIT__;
 					break;
 				}
 				case 4: {
-
+					
 					goto __INIT__;
 					break;
 				}
@@ -1992,8 +2002,11 @@ LOGIN:
 				Sleep(50);
 				return;
 			}
-			if (c == 0 || c == 224)
+			if (c == 0 || c == 224 || c == -32) {
 				c = _getch();
+				c = '\0';
+				continue;
+			}
 
 			if (c == '\r') {
 				if (inputId.empty()) {
@@ -2059,7 +2072,7 @@ LOGIN:
 				}
 			}
 			else if (c != 32 && c != '\n' && c != '\t' && c != '\0') {
-				if ((isNumber(c) || isWord(c)) && inputId.length() < 14) {
+				if (isNumber(c) && inputId.length() < 14) {
 					cout << c;
 					inputId = inputId + c;
 				}

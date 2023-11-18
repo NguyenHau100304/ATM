@@ -116,16 +116,16 @@ std::istream& operator>> (std::istream& in, DateTime& d) {
 	std::stringstream ss(s);
 	int i = 0;
 	while (ss >> s) {
-		switch (i)
+		switch (i++)
 		{
 		case 0:
-			d._s = stoi(s);
+			d._h = stoi(s);
 			break;
 		case 1:
 			d._m = stoi(s);
 			break;
 		case 2:
-			d._h = stoi(s);
+			d._s = stoi(s);
 			break;
 		case 3:
 			d._day = stoi(s);
@@ -274,6 +274,8 @@ istream& operator>> (istream& _is, Money& _money) {
 
 ostream& operator<< (ostream& _os, Money _money) {
 	string s = std::to_string(_money.getMoney());
+	if (s[0] == '-')
+		s.erase(0, 1);
 	int start = s.length();
 	while (s[--start] != '.');
 
@@ -284,7 +286,7 @@ ostream& operator<< (ostream& _os, Money _money) {
 	while (s[s.length() - 3] != '.')
 		s.erase(s.length() - 1, 1);
 	s[s.length() - 3] = ',';
-	_os << s << " " << _money._type;
+	_os << (_money.getAmount() < 0 ? '-' : '\0') << s << " " << _money._type;
 	return _os;
 }
 

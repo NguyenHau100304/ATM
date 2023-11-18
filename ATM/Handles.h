@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "Display.h"
 #include "Info.h"
 #include "Structure.h"
@@ -54,6 +53,7 @@ public:
 	DateTime getDateTime();
 	virtual void load(ifstream&) = NULL;
 	virtual void save(ofstream&) = NULL;
+	virtual void display() = NULL;
 };
 
 class WithrawATM : public Transaction {
@@ -66,6 +66,9 @@ public:
 	void save(ofstream&);
 	void load(ifstream&);
 	Money getMoney();
+	void display() {
+		cout << _type << ' ' << _wrMoney << '\n';
+	}
 };
 
 class Transfer : public Transaction {
@@ -81,6 +84,9 @@ public:
 	Money getMoney();
 	string getTargetId();
 	User getTarget(ListAccount&);
+	void display() {
+		cout << _type << ' ' << _trsmoney << '\n';
+	}
 };
 
 class BeTransfer : public Transaction {
@@ -95,6 +101,9 @@ public:
 	void load(ifstream&);
 	Money getMoney();
 	string getTargetId();
+	void display() {
+		cout << _type << ' ' << _trsmoney << '\n';
+	}
 };
 
 
@@ -159,6 +168,13 @@ public:
 	~ListTransaction();
 	int getSize();
 	void append(Transaction*);
+	void display() {
+		Node<Transaction*>* curr = list._pHead;
+		while (curr) {
+			curr->_data->display();
+			curr = curr->_pNext;
+		}
+	}
 };
 
 
@@ -242,6 +258,7 @@ User::User(const User& cp) {
 	_password = cp._password;
 	_fullname = cp._fullname;
 	_money = cp._money;
+	_trans = cp._trans;
 }
 
 string User::getId() {
@@ -293,7 +310,7 @@ void WithrawATM::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
 		fout << _time;
-		fout << _wrMoney << '\n';
+		fout << _wrMoney.getMoney() << ' ' << _wrMoney.getType() << '\n';
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -302,6 +319,7 @@ void WithrawATM::save(ofstream& fout) {
 void WithrawATM::load(ifstream& fin) {
 	if (fin.is_open()) {
 		fin >> _wrMoney;
+		fin.ignore();
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -313,7 +331,7 @@ void Transfer::save(ofstream& fout) {
 		fout << _type << '\n';
 		fout << _time;
 		fout << _targetId << '\n';
-		fout << _trsmoney << '\n';
+		fout << _trsmoney.getMoney() << ' ' << _trsmoney.getType() << '\n';
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -323,6 +341,7 @@ void Transfer::load(ifstream& fin) {
 	if (fin.is_open()) {
 		fin >> _targetId;
 		fin >> _trsmoney;
+		fin.ignore();
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -349,14 +368,14 @@ User Transfer::getTarget(ListAccount& list) {
 	return list.getUserById(_targetId);
 }
 
-//----
+
 
 void BeTransfer::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
 		fout << _time;
 		fout << _targetId << '\n';
-		fout << _trsmoney << '\n';
+		fout << _trsmoney.getMoney() << ' ' << _trsmoney.getType() << '\n';
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -366,6 +385,7 @@ void BeTransfer::load(ifstream& fin) {
 	if (fin.is_open()) {
 		fin >> _targetId;
 		fin >> _trsmoney;
+		fin.ignore();
 	}
 	else
 		throw runtime_error("Cannot open file\n");
@@ -500,6 +520,7 @@ void ListAccount::load(string path, string pathCard) {
 				temp._password = encoding(pw);
 				finAcc >> temp._money;
 				finAcc.ignore();
+				temp._trans.load(path + "TransactionHistory/LichSu" + id + ".txt");
 				list.addTail(temp);
 			}
 			finAcc.close();
@@ -522,6 +543,7 @@ void ListAccount::save(string path) {
 				<< curr->getData()._fullname << '\n'
 				<< curr->getData()._money.getMoney() << ' '
 				<< curr->getData()._money.getType() << '\n';
+			curr->_data._trans.save(path + "TransactionHistory/LichSu" + curr->getData()._id + ".txt");
 		}
 		else
 			throw runtime_error("Cannot open file\n");
@@ -637,22 +659,28 @@ void ListTransaction::load(string path) {
 			DateTime time;
 			getline(fin, type);
 			fin >> time;
-			Transaction* temp;
+
 			if (type == "withrawatm") {
-				temp = new WithrawATM;
+				Transaction* temp = new WithrawATM;
 				temp->load(fin);
+				temp->_type = type;
+				temp->_time = time;
+				list.addTail(temp);
 			}
 			else if(type == "transfer") {
-				temp = new Transfer;
+				Transaction* temp = new Transfer;
 				temp->load(fin);
+				temp->_type = type;
+				temp->_time = time;
+				list.addTail(temp);
 			}
-			else {
-				temp = new BeTransfer;
+			else if(type == "betransfer") {
+				Transaction* temp = new BeTransfer;
 				temp->load(fin);
+				temp->_type = type;
+				temp->_time = time;
+				list.addTail(temp);
 			}
-			temp->_type = type;
-			temp->_time = time;
-			list.addTail(temp);
 		}
 	}
 	else
@@ -692,6 +720,7 @@ void ListAdministrator::load(string path) {
 	fin.close();
 
 }
+
 void ListAdministrator::save(string path) {
 	ofstream fout(path);
 	if (fout.is_open()) {
@@ -706,6 +735,7 @@ void ListAdministrator::save(string path) {
 		throw runtime_error("Cannot open file\n");
 	fout.close();
 }
+
 ListAdministrator::ListAdministrator() : list() {}
 ListAdministrator::~ListAdministrator() {
 	list.~LinkedList();
