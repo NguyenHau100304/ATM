@@ -12,13 +12,18 @@ private:
 	LinkedList<string> listIdBlocked;
 	void init();
 	void waiting(int second);
+	void printListPerPage(int page, int sort, ListAccount& list, LinkedList<string>& listIdBlocked);
 	void printListUsers();
 	void addUserToList();
 	void deleteUser();
 	void unblockUser();
 	void adminMenu();
 	void printInfoUser(User& user);
+	void transfer(User& user);
+	void withrawMoney(User& user);
 	void userMenu(User& user);
+	void loginPasswordAdmin(Admin&);
+	void loginPasswordUser(User&);
 public:
 	ATM();
 	~ATM();
@@ -56,6 +61,54 @@ void ATM::waiting(int second) {
 		Sleep(1000);
 	}
 	showCursor(true);
+}
+
+
+void ATM::printListPerPage(int page, int sort, ListAccount& list, LinkedList<string>& listIdBlocked) {
+	POINT TAGs[3] = {
+		{20, 3},
+		{45, 3},
+		{69, 3}
+	};
+	string NAMETAGs[2] = {
+		"HO VA TEN",
+		"SO DU"
+	};
+	for (int i = 0; i < 2; ++i) {
+		setTextBGColor(WHITE);
+		setTextColor(BLACK);
+		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
+		cout << NAMETAGs[i];
+	}
+	if (sort > 0) {
+		setTextBGColor(LIGHT_BLUE);
+		setTextColor(BLACK);
+		gotoxy(TAGs[sort - 1].x + ((TAGs[sort].x - TAGs[sort - 1].x) / 2) - NAMETAGs[sort - 1].length() / 2 - 1, TAGs[sort - 1].y);
+		cout << NAMETAGs[sort - 1];
+	}
+	else if (sort < 0) {
+		sort = abs(sort);
+		setTextBGColor(LIGHT_RED);
+		setTextColor(BLACK);
+		gotoxy(TAGs[sort - 1].x + ((TAGs[sort].x - TAGs[sort - 1].x) / 2) - NAMETAGs[sort - 1].length() / 2 - 1, TAGs[sort - 1].y);
+		cout << NAMETAGs[sort - 1];
+	}
+	setTextBGColor(WHITE);
+	short x = 0, y = 5;
+	for (int i = 0; i < 24; ++i) {
+		gotoxy(x + 1, y);
+		cout << "   ";
+		gotoxy(x + 5, y);
+		cout << setFill(14);
+		gotoxy(x + 20, y);
+		cout << setFill(24);
+		gotoxy(x + 45, y);
+		cout << setFill(23);
+		gotoxy(x + 69, y);
+		cout << setFill(9);
+		++y;
+	}
+	list.display(24 * (page - 1), 24 * page - 1, 0, 5, listIdBlocked);
 }
 
 void ATM::printListUsers() {
@@ -417,7 +470,7 @@ void ATM::addUserToList() {
 						if (!input[3].empty() && !input[1].empty() && !input[2].empty()) {
 							if (input[3] != "USD" && input[3] != "VND")
 								input[3] = "VND";
-							User newUser(input[0], "123456", Name(input[1]), Money(stoi(input[2]), input[3]));
+							User newUser(input[0], encoding("123456"), Name(input[1]), Money(stoi(input[2]), input[3]));
 							listAccount.append(newUser);
 							listAccount.saveCard("./data/TheTu.txt");
 							listAccount.save("./data/");
@@ -920,7 +973,7 @@ __INIT__:
 	}
 }
 
-void ATM::loginAdminMenu() {
+void ATM::loginPasswordAdmin(Admin& admin) {
 LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
@@ -933,30 +986,28 @@ LOGIN:
 
 	setTextColor(RED);
 	setTextBGColor(LIGHT_GREEN);
-	gotoxy(g_loginRectX + 14, g_loginRectY + 7);
-	cout << "ADMIN LOGIN";
+	gotoxy(g_loginRectX + 15, g_loginRectY + 8);
+	cout << "NHAP MA PIN";
 
+	POINT box[6] = {
+		{g_loginRectX + 6, userInputY},
+		{g_loginRectX + 11, userInputY},
+		{g_loginRectX + 16, userInputY},
+		{g_loginRectX + 21, userInputY},
+		{g_loginRectX + 26, userInputY},
+		{g_loginRectX + 31, userInputY}
+	};
+	
+	for (int i = 0; i < 6; ++i) {
+		createBox(box[i].x, box[i].y, 3, 2, GRAY);
+	}
 
-	gotoxy(userInputX - 6, userInputY);
-	setTextBGColor(BLACK);
-	setTextColor(RED);
-	cout << "User:                         ";
-
-
-	gotoxy(passInputX - 5, passInputY);
-	setTextBGColor(BLACK);
-	setTextColor(RED);
-	cout << "PIN:                          ";
-
-
-	gotoxy(passInputX - 5, passInputY + 3);
+	gotoxy(passInputX - 5, passInputY + 2);
 	setTextBGColor(LIGHT_GREEN);
 	setTextColor(LIGHT_BLUE);
 	cout << "BACK - Esc";
 
-
-
-	gotoxy(passInputX + 12, passInputY + 3);
+	gotoxy(passInputX + 13, passInputY + 2);
 	setTextBGColor(LIGHT_GREEN);
 	setTextColor(LIGHT_BLUE);
 	cout << "LOGIN - Enter";
@@ -971,22 +1022,13 @@ LOGIN:
 							KEYBOARD EVENT
 
 	****************************************************************/
-	char c = '\0';
-	string inputId = "", inputPass = "";
-	bool isInputId = true;
+	string pw;
 	while (true) {
-		if (isInputId)
-			gotoxy(userInputX + inputId.length(), userInputY);
-		else
-			gotoxy(passInputX + inputPass.length(), passInputY);
-		showCursor(true);
+		showCursor(false);
 		if (_kbhit()) {
-			setTextBGColor(BLACK);
-			setTextColor(WHITE);
-			c = _getch();
-
+			char c = _getch();
 			if (c == ESC) {
-				gotoxy(passInputX - 6, passInputY + 3);
+				gotoxy(passInputX - 6, passInputY + 2);
 				setTextBGColor(RED);
 				setTextColor(LIGHT_GREEN);
 				cout << " BACK - Esc ";
@@ -998,135 +1040,79 @@ LOGIN:
 			if (c == 0 || c == 224)
 				c = _getch();
 
-			if (c == '\r' || c == -32) {
-				if (c == -32)
-					c = _getch();
-				if (isInputId) {
-					gotoxy(passInputX + inputPass.length(), passInputY);
-					isInputId = false;
+			if (c == '\r') {
+				__ENTERLOGIN__:
+				if (pw.length() < 6) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(passInputX - 2, passInputY);
+					cout << "Khong duoc bo trong PIN!";
+					showCursor(false);
+					_getch();
+					gotoxy(passInputX - 2, passInputY);
+					cout << "                         ";
+					showCursor(false);
+				}
+				else if(isCurrent(admin, pw)) {
+					gotoxy(passInputX + 13, passInputY + 2);
+					setTextBGColor(LIGHT_RED);
+					setTextColor(LIGHT_BLUE);
+					cout << "LOGIN - Enter";
+					Beep(800, 50);
+					Sleep(50);
+					adminMenu();
+					wrongTime = 0;
+					return;
 				}
 				else {
-					if (c == '\r') {
-						if (inputId.empty() || inputPass.empty()) {
-							Beep(1000, 200);
-							setTextBGColor(LIGHT_GREEN);
-							setTextColor(RED);
-							if (inputId.empty()) {
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "Khong duoc bo trong USER!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "                         ";
-								isInputId = true;
-								gotoxy(userInputX + inputId.length(), userInputY);
-							}
-							else {
-								gotoxy(passInputX - 2, passInputY + 1);
-								cout << "Khong duoc bo trong PIN!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(passInputX - 2, passInputY + 1);
-								cout << "                         ";
-								gotoxy(passInputX + inputPass.length(), passInputY);
-							}
+					if (++wrongTime == 3) {
+						waiting(30);
+						goto LOGIN;
+					}
+					else if (wrongTime == 4) {
+						setConsoleBackgroundColor(BACKGROUND_RED);
+						clrscr();
+						listAccount.~ListAccount();
+						listAdmin.~ListAdministrator();
+						listIdBlocked.~LinkedList();
+						setTextBGColor(RED);
+						setTextColor(YELLOW);
+						gotoxy(userInputX, userInputY - 5);
+						cout << "BAN DA NHAP SAI QUA NHIEU LAN\n";
+						gotoxy(userInputX, userInputY - 4);
+						cout << "  !!!!!!!!CANH BAO!!!!!!!!!\n";
+						while (++wrongTime <= 25) {
+							Beep(1200, 200);
+							Sleep(100);
 						}
-						else {
-							Admin admin = listAdmin.getAdministratorById(inputId);
-							if (admin.getUser() == "none") {
-								Beep(1000, 200);
-								setTextBGColor(LIGHT_GREEN);
-								setTextColor(RED);
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "Tai khoan khong ton tai!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "                         ";
-								isInputId = true;
-								gotoxy(userInputX + inputId.length(), userInputY);
-							}
-							else if (isCurrent(admin, inputPass)) {
-								Beep(800, 50);
-								wrongTime = 0;
-								gotoxy(passInputX + 11, passInputY + 3);
-								setTextBGColor(RED);
-								setTextColor(LIGHT_GREEN);
-								cout << " LOGIN - Enter ";
-								showCursor(false);
-								Sleep(50);
-								adminMenu();
-								goto LOGIN;
-							}
-							else if (!inputId.empty() && !inputPass.empty()) {
-								if (++wrongTime == 3) {
-									clrscr();
-									waiting(30);
-									goto LOGIN;
-								} if (wrongTime == 4) {
-									listAdmin.~ListAdministrator();
-									listAccount.~ListAccount();
-									setConsoleBackgroundColor(BACKGROUND_RED);
-									setTextBGColor(RED);
-									setTextColor(YELLOW);
-									clrscr();
-									cout << "Ban da nhap sai qua nhieu lan!!!\n!!!!!!!!CANH BAO!!!!!!!!";
-									showCursor(false);
-									while (++wrongTime <= 30) {
-										Beep(1200, 500);
-										Sleep(5);
-									}
-									exit(0);
-								}
-								else {
-									Beep(1000, 200);
-									gotoxy(passInputX - 2, passInputY + 1);
-									setTextBGColor(LIGHT_GREEN);
-									setTextColor(RED);
-									cout << "Ban da nhap sai mat khau!";
-									showCursor(false);
-									_getch();
-									showCursor(true);
-									gotoxy(passInputX - 2, passInputY + 1);
-									cout << "                         ";
-									gotoxy(passInputX + inputPass.length(), passInputY);
-								}
-							}
-
-						}
-					}	
+					}
 					else {
-						gotoxy(userInputX + inputId.length(), userInputY);
-						isInputId = true;
+						Beep(1000, 200);
+						gotoxy(passInputX - 2, passInputY);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						cout << "Ban da nhap sai mat khau!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(passInputX - 2, passInputY);
+						cout << "                         ";
 					}
 				}
 				continue;
 			}
 			else if (c == '\b') {
-				if (isInputId && !inputId.empty()) {
-					cout << "\b  \b";
-					inputId.pop_back();
+				if (!pw.empty()) {
+					Beep(600, 50);
+					createBox(box[pw.length() - 1].x, box[pw.length() - 1].y, 3, 2, GRAY);
+					pw.pop_back();
 				}
-				else if (!isInputId && !inputPass.empty()) {
-					cout << "\b  \b";
-					inputPass.pop_back();
-				}
-
 			}
-			else if (c != 32 && c != '\n' && c != '\t' && c != '\0') {
-				if (isInputId && inputId.length() < 14) {
-					cout << c;
-					inputId = inputId + c;
-				}
-				else if (isNumber(c) && inputPass.length() < 6)
-				{
-					Beep(600, 40);
-					cout << '*';
-					inputPass = inputPass + c;
-				}
+			else if (isNumber(c) && pw.length() < 6) {
+				Beep(600, 50);
+				drawBorder(box[pw.length()].x, box[pw.length()].y, 3, 2, 1, BLACK, GRAY);
+				pw.push_back(c);
 			}
 
 		}
@@ -1137,6 +1123,133 @@ LOGIN:
 
 }
 
+void ATM::loginAdminMenu() {
+LOGIN:
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+
+
+	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, RED);
+
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(g_loginRectX + 14, g_loginRectY + 8);
+	cout << "ADMIN LOGIN";
+
+
+	gotoxy(userInputX - 6, userInputY);
+	setTextBGColor(BLACK);
+	setTextColor(RED);
+	cout << "User:                         ";
+
+
+
+	gotoxy(passInputX - 5, passInputY + 2);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+
+	gotoxy(passInputX + 13, passInputY + 2);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "NEXT - Enter";
+
+	gotoxy(g_loginRectX + 8, g_loginRectY + 18);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(WHITE);
+	cout << "BANG HAI TAC MU ROM BANK";
+
+	/***************************************************************
+
+							KEYBOARD EVENT
+
+	****************************************************************/
+	char c = '\0';
+	string inputId = "";
+	while (true) {
+		showCursor(true);
+		gotoxy(userInputX + inputId.length(), userInputY);
+		if (_kbhit()) {
+			setTextBGColor(BLACK);
+			setTextColor(WHITE);
+			c = _getch();
+
+			if (c == ESC) {
+				gotoxy(passInputX - 6, passInputY + 2);
+				setTextBGColor(RED);
+				setTextColor(LIGHT_GREEN);
+				cout << " BACK - Esc ";
+				showCursor(false);
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == 0 || c == 224)
+				c = _getch();
+
+			if (c == '\r') {
+				if (inputId.empty()) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(userInputX - 2, userInputY + 1);
+					cout << "Khong duoc bo trong USER!";
+					showCursor(false);
+					_getch();
+					showCursor(true);
+					gotoxy(userInputX - 2, userInputY + 1);
+					cout << "                         ";
+					gotoxy(userInputX + inputId.length(), userInputY);
+				}
+				else {
+					Admin admin = listAdmin.getAdministratorById(inputId);
+					if (admin.getUser() != "none") {
+						gotoxy(passInputX + 13, passInputY + 2);
+						setTextBGColor(LIGHT_RED);
+						setTextColor(LIGHT_BLUE);
+						cout << "NEXT - Enter";
+						Beep(800, 50);
+						Sleep(50);
+						loginPasswordAdmin(admin);
+						goto LOGIN;
+					}
+					else {
+						Beep(1000, 200);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						gotoxy(userInputX - 2, userInputY + 1);
+						cout << "Tai khoan khong ton tai!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(userInputX - 2, userInputY + 1);
+						cout << "                         ";
+						gotoxy(userInputX + inputId.length(), userInputY);
+					}
+				}
+				continue;
+			}
+			else if (c == '\b') {
+				if (!inputId.empty()) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if (c != 32 && c != '\n' && c != '\t' && c != '\0') {
+				if ((isNumber(c) || isWord(c)) && inputId.length() < 14) {
+					cout << c;
+					inputId = inputId + c;
+				}
+			}
+
+		}
+	}
+}
 
 void ATM::printInfoUser(User& user) {
 __INIT__:
@@ -1214,6 +1327,328 @@ __INIT__:
 		}
 	}
 	_getch();
+}
+
+void ATM::withrawMoney(User& user) {
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+__INIT__:
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, LIGHT_BLUE);
+	setTextBGColor(YELLOW);
+	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+
+	drawBorder(g_initMenuX + 24, g_initMenuY + 1, 29, 3, 1, AQUA, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 26, g_adminMenuY + 2);
+	setTextColor(BLUE);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "  NHAP SO TIEN CAN RUT";
+
+
+	gotoxy(g_adminMenuX + 4, g_adminMenuY + g_adminMenuHeight - 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(BLACK);
+
+
+	POINT hoverText = { g_adminMenuX + 15, g_adminMenuY + 7 };
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(RED);
+	gotoxy(hoverText.x, hoverText.y - 2);
+	cout << "  SO DU:";
+	setTextBGColor(GRAY);
+	setTextColor(BLACK);
+	gotoxy(hoverText.x + 9, hoverText.y - 2);
+	cout << " " << user._money << " ";
+
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(hoverText.x - 5, hoverText.y);
+	cout << "Nhap so tien: ";
+	setTextBGColor(GRAY);
+	gotoxy(hoverText.x += 9, hoverText.y);
+	cout << setFill(29);
+	gotoxy(hoverText.x + 26, hoverText.y);
+	cout << "VND";
+	hoverText.x++;
+
+	bool isInput = true;
+	string inputId = "";
+	gotoxy(hoverText.x, hoverText.y);
+	showCursor(true);
+	while (true) {
+		if (isInput)
+			gotoxy(hoverText.x + inputId.length(), hoverText.y);
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(g_adminMenuX + 3, g_adminMenuY + g_adminMenuHeight - 3);
+				setTextBGColor(LIGHT_RED);
+				setTextColor(LIGHT_BLUE);
+				cout << " BACK - Esc ";
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == '\r' && !inputId.empty()) {
+				int money = stoi(inputId);
+				if (money >= 50000 && money % 50000 == 0 && user.getAmount().getAmount() - money >= 50000) {
+					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(YELLOW);
+
+					setTextColor(RED);
+					gotoxy(hoverText.x + 6, hoverText.y + 2);
+					cout << "SO DU CON LAI";
+					gotoxy(hoverText.x + 6, hoverText.y + 3);
+					cout << "SAU KHI RUT LA";
+					
+					
+					setTextColor(BLACK);
+					gotoxy(hoverText.x + 6, hoverText.y + 4);
+					Money temp(user.getAmount().getAmount() - money, "VND");
+					temp.setType(user.getAmount().getType());
+					cout << temp;
+
+					gotoxy(hoverText.x, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "HUY - ESC";
+
+					gotoxy(hoverText.x + 18, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "RUT - ENTER";
+
+					c = _getch();
+
+					if (c == ESC) {
+						Beep(800, 50);
+						gotoxy(hoverText.x, hoverText.y + 6);
+						setTextBGColor(LIGHT_RED);
+						setTextColor(BLUE);
+						cout << "HUY - ESC";
+						showCursor(false);
+						Sleep(50);
+						goto __INIT__;
+					}
+					else if (c == '\r') {
+						Beep(800, 50);
+						if (confirmProcess("Ban co chac muon rut ?")) {
+							listAccount.updatePriceUser(user._id, -money);
+							listAccount.save("./data/");
+							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 4);
+							setTextBGColor(AQUA);
+							setTextColor(BLACK);
+							cout << "SO TIEN CUA BAN LA";
+							setTextColor(PURPLE);
+							string tien = withdraw(money);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - tien.length() / 2, g_adminMenuY + 6);
+							cout << tien;
+							showCursor(false);
+							_getch();
+							return;
+						}
+						else
+						{
+							goto __INIT__;
+						}
+					}
+				}
+				else {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					
+					if (money < 50000)
+						cout << "Tai khoan cua ban khong du de rut";
+					else if (money % 50000 != 0)
+						cout << "So tien phai la boi cua 50.000";
+					else if (user.getAmount().getAmount() - money < 50000)
+						cout << "So du con lai phai it nhat 50.000VND";
+
+					Beep(1000, 200);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                                    ";
+				}
+			}
+			else if (c == '\b') {
+				setTextBGColor(GRAY);
+				setTextColor(GRAY);
+				if (inputId.length() > 0) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if (isNumber(c) && inputId.length() < 10) {
+				setTextBGColor(GRAY);
+				setTextColor(BLACK);
+				cout << c;
+				inputId.push_back(c);
+			}
+		}
+	}
+
+}
+
+void ATM::transfer(User& user) {
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+__INIT__:
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', YELLOW, LIGHT_BLUE);
+	setTextBGColor(YELLOW);
+
+	printArt(17, 0, "UserMenu.txt", RED, YELLOW);
+
+
+	drawBorder(g_initMenuX + 26, g_initMenuY + 1, 26, 3, 1, RED, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 27 + 6, g_adminMenuY + 2);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "CHUYEN KHOAN";
+
+
+	gotoxy(g_adminMenuX + 4, g_adminMenuY + g_adminMenuHeight - 3);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(BLACK);
+
+
+	POINT hoverText = { g_adminMenuX + 20, g_adminMenuY + 6 };
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(hoverText.x - 5, hoverText.y);
+	cout << "Nhap ID: ";
+	setTextBGColor(GRAY);
+	gotoxy(hoverText.x += 4, hoverText.y);
+	cout << setFill(29);
+	//-------------------------------------------------------------------------------------------
+
+
+	bool isInput = true;
+	string inputId = "";
+	gotoxy(hoverText.x, hoverText.y);
+	showCursor(true);
+	while (true) {
+		if (isInput)
+			gotoxy(hoverText.x + inputId.length(), hoverText.y);
+
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(g_adminMenuX + 3, g_adminMenuY + g_adminMenuHeight - 3);
+				setTextBGColor(LIGHT_RED);
+				setTextColor(LIGHT_BLUE);
+				cout << " BACK - Esc ";
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == '\r' && !inputId.empty()) {
+				User Temp = listAccount.getUserById(inputId);
+				bool isNotBlock = false;
+				if (Temp.getId() != "00000000000000") {
+					isNotBlock = listIdBlocked.search(inputId) == NULL;
+					if (isNotBlock)
+						goto __EXCEPT__;
+					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(YELLOW);
+
+					setTextColor(BLACK);
+					cout << "TEN TAI KHOAN: ";
+					gotoxy(hoverText.x, hoverText.y + 2);
+					setTextColor(RED);
+					cout << Temp.getName() << '\n';
+					gotoxy(hoverText.x, hoverText.y + 3);
+					setTextColor(BLACK);
+					cout << "SO DU: ";
+					gotoxy(hoverText.x, hoverText.y + 4);
+					setTextColor(RED);
+					cout << Temp.getAmount();
+
+					gotoxy(hoverText.x, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "HUY - ESC";
+					gotoxy(hoverText.x + 14, hoverText.y + 6);
+					setTextBGColor(LIGHT_BLUE);
+					setTextColor(RED);
+					cout << "MO KHOA - ENTER";
+
+					c = _getch();
+					if (c == ESC) {
+						Beep(800, 50);
+						gotoxy(hoverText.x, hoverText.y + 6);
+						setTextBGColor(LIGHT_RED);
+						setTextColor(BLUE);
+						cout << "HUY - ESC";
+						showCursor(false);
+						Sleep(50);
+						goto __INIT__;
+					}
+					else if (c == '\r') {
+						Beep(800, 50);
+						if (confirmProcess("Ban co chac muon mo khoa tai khoan nay ?")) {
+							listIdBlocked.remove(inputId);
+							listIdBlocked.save("./data/AccountBlocked/ALL.txt");
+							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
+							setTextBGColor(AQUA);
+							setTextColor(BLACK);
+							cout << "DA MO KHOA TAI KHOAN";
+							showCursor(false);
+							_getch();
+							return;
+						}
+						else
+						{
+							goto __INIT__;
+						}
+					}
+				}
+				else {
+				__EXCEPT__:
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					if (isNotBlock)
+						cout << "Tai khoan nay khong bi khoa";
+					else
+						cout << "Tai khoan khong ton tai!";
+					Beep(1000, 200);
+					showCursor(false);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                                 ";
+					showCursor(true);
+				}
+			}
+			else if (c == '\b') {
+				setTextBGColor(GRAY);
+				setTextColor(GRAY);
+				if (inputId.length() > 0) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if (isNumber(c) && inputId.length() < 14) {
+				setTextBGColor(GRAY);
+				setTextColor(BLACK);
+				cout << c;
+				inputId.push_back(c);
+			}
+		}
+	}
+
 }
 
 
@@ -1305,12 +1740,12 @@ __INIT__:
 					break;
 				}
 				case 1: {
-
+					withrawMoney(user);
 					goto __INIT__;
 					break;
 				}
 				case 2: {
-
+					transfer(user);
 					goto __INIT__;
 					break;
 				}
@@ -1340,7 +1775,7 @@ __INIT__:
 	}
 }
 
-void ATM::loginUserMenu() {
+void ATM::loginPasswordUser(User& user) {
 LOGIN:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
@@ -1348,65 +1783,54 @@ LOGIN:
 
 
 	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
-	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", BLUE, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
 	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, LIGHT_BLUE);
 
 	setTextColor(BLUE);
 	setTextBGColor(LIGHT_GREEN);
-	gotoxy(g_loginRectX + 14, g_loginRectY + 7);
-	cout << "USER LOGIN";
+	gotoxy(g_loginRectX + 15, g_loginRectY + 8);
+	cout << "NHAP MA PIN";
 
+	POINT box[6] = {
+		{g_loginRectX + 6, userInputY},
+		{g_loginRectX + 11, userInputY},
+		{g_loginRectX + 16, userInputY},
+		{g_loginRectX + 21, userInputY},
+		{g_loginRectX + 26, userInputY},
+		{g_loginRectX + 31, userInputY}
+	};
 
-	gotoxy(userInputX - 6, userInputY);
-	setTextBGColor(BLACK);
-	setTextColor(BLUE);
-	cout << "ID:                           ";
+	for (int i = 0; i < 6; ++i) {
+		createBox(box[i].x, box[i].y, 3, 2, GRAY);
+	}
 
-
-	gotoxy(passInputX - 5, passInputY);
-	setTextBGColor(BLACK);
-	setTextColor(BLUE);
-	cout << "PIN:                          ";
-
-
-	gotoxy(passInputX - 5, passInputY + 3);
+	gotoxy(passInputX - 5, passInputY + 2);
 	setTextBGColor(LIGHT_GREEN);
-	setTextColor(LIGHT_RED);
+	setTextColor(LIGHT_BLUE);
 	cout << "BACK - Esc";
 
-
-
-	gotoxy(passInputX + 12, passInputY + 3);
+	gotoxy(passInputX + 13, passInputY + 2);
 	setTextBGColor(LIGHT_GREEN);
-	setTextColor(LIGHT_RED);
+	setTextColor(LIGHT_BLUE);
 	cout << "LOGIN - Enter";
 
 	gotoxy(g_loginRectX + 8, g_loginRectY + 18);
 	setTextBGColor(LIGHT_GREEN);
 	setTextColor(WHITE);
 	cout << "BANG HAI TAC MU ROM BANK";
-	short _userInputX = userInputX - 2;
+
 	/***************************************************************
 
 							KEYBOARD EVENT
 
 	****************************************************************/
-	char c = '\0';
-	string inputId = "", inputPass = "";
-	bool isInputId = true;
+	string pw;
 	while (true) {
-		if (isInputId)
-			gotoxy(_userInputX + inputId.length(), userInputY);
-		else
-			gotoxy(passInputX + inputPass.length(), passInputY);
-		showCursor(true);
+		showCursor(false);
 		if (_kbhit()) {
-			setTextBGColor(BLACK);
-			setTextColor(WHITE);
-			c = _getch();
-
+			char c = _getch();
 			if (c == ESC) {
-				gotoxy(passInputX - 6, passInputY + 3);
+				gotoxy(passInputX - 6, passInputY + 2);
 				setTextBGColor(RED);
 				setTextColor(LIGHT_GREEN);
 				cout << " BACK - Esc ";
@@ -1418,148 +1842,79 @@ LOGIN:
 			if (c == 0 || c == 224)
 				c = _getch();
 
-			if (c == '\r' || c == -32) {
-				if (c == -32)
-					c = _getch();
-				if (isInputId) {
-					gotoxy(passInputX + inputPass.length(), passInputY);
-					isInputId = false;
+			if (c == '\r') {
+			__ENTERLOGIN__:
+				if (pw.length() < 6) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(passInputX - 2, passInputY);
+					cout << "Khong duoc bo trong PIN!";
+					showCursor(false);
+					_getch();
+					gotoxy(passInputX - 2, passInputY);
+					cout << "                         ";
+					showCursor(false);
+				}
+				else if (isCurrent(user, pw)) {
+					gotoxy(passInputX + 13, passInputY + 2);
+					setTextBGColor(LIGHT_RED);
+					setTextColor(LIGHT_BLUE);
+					cout << "LOGIN - Enter";
+					Beep(800, 50);
+					Sleep(50);
+					userMenu(user);
+					wrongTime = 0;
+					return;
 				}
 				else {
-					if (c == '\r') {
-						if (inputId.empty() || inputPass.empty()) {
-							Beep(1000, 200);
-							setTextBGColor(LIGHT_GREEN);
-							setTextColor(RED);
-							if (inputId.empty()) {
-								gotoxy(_userInputX - 2, userInputY + 1);
-								cout << "Khong duoc bo trong ID!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(_userInputX - 2, userInputY + 1);
-								cout << "                         ";
-								isInputId = true;
-								gotoxy(_userInputX + inputId.length(), userInputY);
-							}
-							else {
-								gotoxy(passInputX - 2, passInputY + 1);
-								cout << "Khong duoc bo trong PIN!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(passInputX - 2, passInputY + 1);
-								cout << "                         ";
-								gotoxy(passInputX + inputPass.length(), passInputY);
-							}
-						}
-						else {
-							User& user = listAccount.getCurrentUser(inputId);
-							if (user._id == "00000000000000") {
-								Beep(1000, 200);
-								setTextBGColor(LIGHT_GREEN);
-								setTextColor(RED);
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "Tai khoan khong ton tai!";
-								showCursor(false);
-								_getch();
-								showCursor(true);
-								gotoxy(userInputX - 2, userInputY + 1);
-								cout << "                         ";
-								isInputId = true;
-								gotoxy(userInputX + inputId.length(), userInputY);
-							}
-							else if (isCurrent(user, inputPass)) {
-								if (listIdBlocked.search(user._id)) {
-									Beep(1000, 200);
-									gotoxy(passInputX - 2, passInputY + 1);
-									setTextBGColor(LIGHT_GREEN);
-									setTextColor(RED);
-									cout << "Tai khoan nay da bi khoa!";
-									showCursor(false);
-									_getch();
-									showCursor(true);
-									gotoxy(passInputX - 2, passInputY + 1);
-									cout << "                         ";
-									gotoxy(passInputX + inputPass.length(), passInputY);
-								}
-								else {
-									Beep(800, 50);
-									wrongTime = 0;
-									gotoxy(passInputX + 11, passInputY + 3);
-									setTextBGColor(RED);
-									setTextColor(LIGHT_GREEN);
-									cout << " LOGIN - Enter ";
-									showCursor(false);
-									Sleep(50);
-									userMenu(user);
-									goto LOGIN;
-								}
-							}
-							else if (!inputId.empty() && !inputPass.empty()) {
-								if (++wrongTime == 3) {
-									listIdBlocked.addTail(inputId);
-									listIdBlocked.save("./data/AccountBlocked/ALL.txt");
-									listAdmin.~ListAdministrator();
-									listAccount.~ListAccount();
-									listIdBlocked.~LinkedList();
-									setConsoleBackgroundColor(BACKGROUND_RED);
-									setTextBGColor(RED);
-									setTextColor(YELLOW);
-									clrscr();
-									cout << "Ban da nhap sai qua nhieu lan!!!\nDE DAM BAO AN TOAN CHO KHACH HANG\n!!!TAI KHOAN DA BI KHOA!!!";
-									showCursor(false);
-									while (++wrongTime <= 30) {
-										Beep(1200, 300);
-										Sleep(100);
-									}
-									exit(0);
-								}
-								else {
-									Beep(1000, 200);
-									gotoxy(passInputX - 2, passInputY + 1);
-									setTextBGColor(LIGHT_GREEN);
-									setTextColor(RED);
-									cout << "Ban da nhap sai mat khau!";
-									showCursor(false);
-									_getch();
-									showCursor(true);
-									gotoxy(passInputX - 2, passInputY + 1);
-									cout << "                         ";
-									gotoxy(passInputX + inputPass.length(), passInputY);
-								}
-							}
+					if (++wrongTime == 3) {
+						setConsoleBackgroundColor(BACKGROUND_RED);
+						clrscr();
+						listIdBlocked.addTail(user._id);
+						listIdBlocked.save("./data/AccountBlocked/ALL.txt");
+						listAccount.~ListAccount();
+						listAdmin.~ListAdministrator();
+						listIdBlocked.~LinkedList();
+						setTextBGColor(RED);
+						setTextColor(YELLOW);
+						gotoxy(userInputX, userInputY - 5);
+						cout << "!!!BAN DA NHAP SAI QUA NHIEU LAN!!!";
+						gotoxy(userInputX, userInputY - 4);
+						cout << " DE DAM BAO AN TOAN CHO KHACH HANG";
+						gotoxy(userInputX, userInputY - 3);
+						cout << "********TAI KHOAN DA BI KHOA*******";
+						while (++wrongTime <= 25) {
+							Beep(1200, 200);
+							Sleep(100);
 						}
 					}
 					else {
-						gotoxy(_userInputX + inputId.length(), userInputY);
-						isInputId = true;
+						Beep(1000, 200);
+						gotoxy(passInputX - 2, passInputY);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						cout << "Ban da nhap sai mat khau!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(passInputX - 2, passInputY);
+						cout << "                         ";
 					}
 				}
 				continue;
 			}
 			else if (c == '\b') {
-				if (isInputId && !inputId.empty()) {
-					cout << "\b  \b";
-					inputId.pop_back();
+				if (!pw.empty()) {
+					Beep(600, 50);
+					createBox(box[pw.length() - 1].x, box[pw.length() - 1].y, 3, 2, GRAY);
+					pw.pop_back();
 				}
-				else if (!isInputId && !inputPass.empty()) {
-					cout << "\b  \b";
-					inputPass.pop_back();
-				}
-
 			}
-			else if (c != 32 && c != '\n' && c != '\t' && c != '\0') {
-				if (isInputId && inputId.length() < 14 && isNumber(c)) {
-					cout << c;
-					inputId = inputId + c;
-				}
-				else if (!isInputId && isNumber(c) && inputPass.length() < 6)
-				{
-					Beep(600, 40);
-					cout << '*';
-					inputPass = inputPass + c;
-				}
+			else if (isNumber(c) && pw.length() < 6) {
+				Beep(600, 50);
+				drawBorder(box[pw.length()].x, box[pw.length()].y, 3, 2, 1, BLACK, GRAY);
+				pw.push_back(c);
 			}
 
 		}
@@ -1568,6 +1923,150 @@ LOGIN:
 
 
 
+}
+
+
+void ATM::loginUserMenu() {
+LOGIN:
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	printArt(17, 0, "NameBank.txt", RED, YELLOW);
+
+
+	createBox(g_loginRectX, g_loginRectY, g_loginRectWidth, g_loginRectHeight, LIGHT_GREEN);
+	printArt(g_loginRectX + 8, g_loginRectY, "ATM.txt", RED, LIGHT_GREEN);
+	drawBorder(g_loginRectX - 1, g_loginRectY - 1, g_loginRectWidth + 2, g_loginRectHeight + 2, '*', WHITE, LIGHT_BLUE);
+
+	setTextColor(BLUE);
+	setTextBGColor(LIGHT_GREEN);
+	gotoxy(g_loginRectX + 14, g_loginRectY + 8);
+	cout << "USER LOGIN";
+
+
+	gotoxy(userInputX - 4, userInputY);
+	setTextBGColor(BLACK);
+	setTextColor(BLUE);
+	cout << "ID:                       ";
+
+
+
+	gotoxy(passInputX - 5, passInputY + 2);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+
+
+	gotoxy(passInputX + 13, passInputY + 2);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "NEXT - Enter";
+
+	gotoxy(g_loginRectX + 8, g_loginRectY + 18);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(WHITE);
+	cout << "BANG HAI TAC MU ROM BANK";
+
+	/***************************************************************
+
+							KEYBOARD EVENT
+
+	****************************************************************/
+	char c = '\0';
+	string inputId = "";
+	while (true) {
+		showCursor(true);
+		gotoxy(userInputX + inputId.length(), userInputY);
+		if (_kbhit()) {
+			setTextBGColor(BLACK);
+			setTextColor(WHITE);
+			c = _getch();
+
+			if (c == ESC) {
+				gotoxy(passInputX - 6, passInputY + 2);
+				setTextBGColor(RED);
+				setTextColor(LIGHT_GREEN);
+				cout << " BACK - Esc ";
+				showCursor(false);
+				Beep(800, 50);
+				Sleep(50);
+				return;
+			}
+			if (c == 0 || c == 224)
+				c = _getch();
+
+			if (c == '\r') {
+				if (inputId.empty()) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(userInputX - 2, userInputY + 1);
+					cout << "Khong duoc bo trong ID!";
+					showCursor(false);
+					_getch();
+					showCursor(true);
+					gotoxy(userInputX - 2, userInputY + 1);
+					cout << "                         ";
+					gotoxy(userInputX + inputId.length(), userInputY);
+				}
+				else {
+					User& user = listAccount.getCurrentUser(inputId);
+					if (user.getId() != "00000000000000") {
+						if (listIdBlocked.search(user._id) != NULL) {
+							Beep(1000, 200);
+							setTextBGColor(LIGHT_GREEN);
+							setTextColor(RED);
+							gotoxy(userInputX - 2, userInputY + 1);
+							cout << "Tai khoan da bi khoa!";
+							showCursor(false);
+							_getch();
+							showCursor(true);
+							gotoxy(userInputX - 2, userInputY + 1);
+							cout << "                         ";
+							gotoxy(userInputX + inputId.length(), userInputY);
+						}
+						else {
+							gotoxy(passInputX + 13, passInputY + 2);
+							setTextBGColor(LIGHT_RED);
+							setTextColor(LIGHT_BLUE);
+							cout << "NEXT - Enter";
+							Beep(800, 50);
+							Sleep(50);
+							loginPasswordUser(user);
+							goto LOGIN;
+						}
+					}
+					else {
+						Beep(1000, 200);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						gotoxy(userInputX - 2, userInputY + 1);
+						cout << "Tai khoan khong ton tai!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(userInputX - 2, userInputY + 1);
+						cout << "                         ";
+						gotoxy(userInputX + inputId.length(), userInputY);
+					}
+				}
+				continue;
+			}
+			else if (c == '\b') {
+				if (!inputId.empty()) {
+					cout << "\b  \b";
+					inputId.pop_back();
+				}
+			}
+			else if (c != 32 && c != '\n' && c != '\t' && c != '\0') {
+				if ((isNumber(c) || isWord(c)) && inputId.length() < 14) {
+					cout << c;
+					inputId = inputId + c;
+				}
+			}
+
+		}
+	}
 }
 
 ATM::ATM() {

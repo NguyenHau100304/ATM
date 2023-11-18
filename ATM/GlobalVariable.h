@@ -17,7 +17,7 @@ short g_initMenuX = g_adminMenuX, g_initMenuY = g_adminMenuY;
 short g_initMenuWidth = g_adminMenuWidth + 2, g_initMenuHeight = g_adminMenuHeight;
 
 
-short userInputX = g_loginRectX + 11, userInputY = g_loginRectY + 9;
+short userInputX = g_loginRectX + 11, userInputY = g_loginRectY + 10;
 
 short passInputX = g_loginRectX + 10, passInputY = g_loginRectY + 12;
 

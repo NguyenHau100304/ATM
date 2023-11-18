@@ -52,3 +52,21 @@ bool isWord(char c) {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+string withdraw(int amount) {
+	int denominations[] = { 500000, 200000, 100000, 50000 };
+
+	int count[6]; 
+	for (int i = 0; i < 6; ++i)
+		count[i] = 0;
+	string s;
+	for (int i = 0; i < 4; ++i) {
+		count[i] = amount / denominations[i];
+		amount %= denominations[i];
+
+		if (count[i] > 0) {
+			for (int j = 0; j < count[i]; ++j)
+				s = s + to_string(denominations[i]) + ' ';
+		}
+	}
+	return s;
+}

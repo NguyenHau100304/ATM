@@ -44,12 +44,14 @@ class Transaction {
 	friend class ListTransaction;
 	friend class ATM;
 protected:
+	DateTime _time;
 	string _type;
 public:
 	Transaction();
-	Transaction(string);
+	Transaction(string, DateTime);
 	Transaction(const Transaction&);
 	~Transaction();
+	DateTime getDateTime();
 	virtual void load(ifstream&) = NULL;
 	virtual void save(ofstream&) = NULL;
 };
@@ -59,7 +61,7 @@ class WithrawATM : public Transaction {
 	Money _wrMoney;
 public:
 	WithrawATM();
-	WithrawATM(User, Money);
+	WithrawATM(Money);
 	~WithrawATM();
 	void save(ofstream&);
 	void load(ifstream&);
@@ -72,7 +74,7 @@ class Transfer : public Transaction {
 	string _targetId;
 public:
 	Transfer();
-	Transfer(User, string, Money);
+	Transfer(string, Money);
 	~Transfer();
 	void save(ofstream&);
 	void load(ifstream&);
@@ -81,11 +83,24 @@ public:
 	User getTarget(ListAccount&);
 };
 
+class BeTransfer : public Transaction {
+	friend class ListTransaction;
+	Money _trsmoney;
+	string _targetId;
+public:
+	BeTransfer();
+	BeTransfer(string, Money);
+	~BeTransfer();
+	void save(ofstream&);
+	void load(ifstream&);
+	Money getMoney();
+	string getTargetId();
+};
 
 
 /****************************************************************************************************
 
-										    TEMP MEMORY
+										    LIST CLASS
 
 ***************************************************************************************************/
 
@@ -110,6 +125,8 @@ class ListAccount {
 private:
 	LinkedList<User> list;
 	User& getCurrentUser(string);
+	void updatePriceUser(string, int);
+	void transfer(string, string, int);
 public:
 	ListAccount();
 	~ListAccount();
@@ -141,6 +158,7 @@ public:
 	ListTransaction(const ListTransaction&);
 	~ListTransaction();
 	int getSize();
+	void append(Transaction*);
 };
 
 
@@ -150,6 +168,7 @@ class User {
 	friend class Transaction;
 	friend class WithrawATM;
 	friend class Transfer;
+	friend class BeTransfer;
 	friend class ListTransaction;
 	friend class ListAccount;
 private:
@@ -158,6 +177,7 @@ private:
 	Name _fullname;
 	Money _money;
 	ListTransaction _trans;
+	void saveTransaction(string);
 public:
 	User();
 	User(string, string, Name, Money);
@@ -168,6 +188,13 @@ public:
 	bool operator< (User);
 	friend bool isCurrent(const User, string);
 };
+
+
+/***********************************************************************************************
+
+								    DEFINE OBJECT
+
+************************************************************************************************/
 
 
 
@@ -229,29 +256,31 @@ Money User::getAmount() {
 	return this->_money;
 }
 
-
-
 bool User::operator< (User _a) {
 	return this->_fullname < _a._fullname;
 }
 
 
 
-Transaction::Transaction() : _type("None") {}
+Transaction::Transaction() : _type("None"), _time() {}
 
-Transaction::Transaction(string type) :_type(type) {}
+Transaction::Transaction(string type, DateTime now) :_type(type), _time(now) {}
 Transaction::Transaction(const Transaction& tras) {
 	_type = tras._type;
+	_time = tras._time;
 }
 
 Transaction::~Transaction() {}
 
-
-
-WithrawATM::WithrawATM() : Transaction("withrawatm"), _wrMoney() {
+DateTime Transaction::getDateTime() {
+	return _time;
 }
 
-WithrawATM::WithrawATM(User user, Money mn) : Transaction("withrawatm"), _wrMoney(mn) {
+
+WithrawATM::WithrawATM() : Transaction("withrawatm", DateTime()), _wrMoney() {
+}
+
+WithrawATM::WithrawATM(Money mn) : Transaction("withrawatm", DateTime()), _wrMoney(mn) {
 }
 
 WithrawATM::~WithrawATM() {}
@@ -263,6 +292,7 @@ Money WithrawATM::getMoney() {
 void WithrawATM::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
+		fout << _time;
 		fout << _wrMoney << '\n';
 	}
 	else
@@ -281,6 +311,7 @@ void WithrawATM::load(ifstream& fin) {
 void Transfer::save(ofstream& fout) {
 	if (fout.is_open()) {
 		fout << _type << '\n';
+		fout << _time;
 		fout << _targetId << '\n';
 		fout << _trsmoney << '\n';
 	}
@@ -290,8 +321,7 @@ void Transfer::save(ofstream& fout) {
 
 void Transfer::load(ifstream& fin) {
 	if (fin.is_open()) {
-		fin.ignore();
-		getline(fin, _targetId);
+		fin >> _targetId;
 		fin >> _trsmoney;
 	}
 	else
@@ -299,13 +329,14 @@ void Transfer::load(ifstream& fin) {
 }
 
 
-Transfer::Transfer() : Transaction("transfer"), _targetId(), _trsmoney() {
+Transfer::Transfer() : Transaction("transfer", DateTime()), _targetId(), _trsmoney() {
 }
 
-Transfer::Transfer(User user, string tar, Money mn) : Transaction("transfer"), _targetId(tar), _trsmoney(mn) {
+Transfer::Transfer(string tar, Money mn) : Transaction("transfer", DateTime()), _targetId(tar), _trsmoney(mn) {
 }
 
 Transfer::~Transfer() {}
+
 
 Money Transfer::getMoney() {
 	return this->_trsmoney;
@@ -317,6 +348,45 @@ string Transfer::getTargetId() {
 User Transfer::getTarget(ListAccount& list) {
 	return list.getUserById(_targetId);
 }
+
+//----
+
+void BeTransfer::save(ofstream& fout) {
+	if (fout.is_open()) {
+		fout << _type << '\n';
+		fout << _time;
+		fout << _targetId << '\n';
+		fout << _trsmoney << '\n';
+	}
+	else
+		throw runtime_error("Cannot open file\n");
+}
+
+void BeTransfer::load(ifstream& fin) {
+	if (fin.is_open()) {
+		fin >> _targetId;
+		fin >> _trsmoney;
+	}
+	else
+		throw runtime_error("Cannot open file\n");
+}
+
+
+BeTransfer::BeTransfer() : Transaction("betransfer", DateTime()), _targetId(), _trsmoney() {
+}
+
+BeTransfer::BeTransfer(string tar, Money mn) : Transaction("betransfer", DateTime()), _targetId(tar), _trsmoney(mn) {
+}
+
+BeTransfer::~BeTransfer() {}
+
+Money BeTransfer::getMoney() {
+	return this->_trsmoney;
+}
+string BeTransfer::getTargetId() {
+	return _targetId;
+}
+
 
 
 ListAccount::ListAccount() : list() {}
@@ -450,7 +520,8 @@ void ListAccount::save(string path) {
 		if (fout.is_open()) {
 			fout << curr->getData()._id << '\n'
 				<< curr->getData()._fullname << '\n'
-				<< curr->getData()._money << '\n';
+				<< curr->getData()._money.getMoney() << ' '
+				<< curr->getData()._money.getType() << '\n';
 		}
 		else
 			throw runtime_error("Cannot open file\n");
@@ -507,6 +578,38 @@ void ListAccount::display(int start, int end, short x, short y, LinkedList<strin
 }
 
 
+void ListAccount::updatePriceUser(string id, int money) {
+	User& user = getCurrentUser(id);
+	user._money.setAmount(money);
+	Transaction* tras;
+	if (user._money.getType() == "USD")
+		tras = new WithrawATM(Money(float(money / 24580), "USD"));
+	else
+		tras = new WithrawATM(Money(money, "VND"));
+	user._trans.append(tras);
+	user._trans.save("./data/TransactionHistory/LichSu" + user._id + ".txt");
+}
+void ListAccount::transfer(string id1, string id2, int m) {
+	User& user1 = getCurrentUser(id1);
+	User& user2 = getCurrentUser(id2);
+	user1._money.setAmount(-m);
+	user2._money.setAmount(m);
+	Transaction* trasU1;
+	if (user1._money.getType() == "USD")
+		trasU1 = new Transfer(id2, Money(float(m / 24580), "USD"));
+	else
+		trasU1 = new Transfer(id2, Money(m, "VND"));
+	user1._trans.append(trasU1);
+	Transaction* trasU2;
+	if (user2._money.getType() == "USD")
+		trasU2 = new BeTransfer(id1, Money(float(m / 24580), "USD"));
+	else
+		trasU2 = new BeTransfer(id1, Money(m, "VND"));
+	user2._trans.append(trasU2);
+	user1._trans.save("./data/TransactionHistory/LichSu" + user1._id + ".txt");
+	user2._trans.save("./data/TransactionHistory/LichSu" + user2._id + ".txt");
+}
+
 
 ListTransaction::ListTransaction() : list() {}
 
@@ -521,9 +624,9 @@ int ListTransaction::getSize() {
 	return list._iSize;
 }
 
-
-
-
+void ListTransaction::append(Transaction* tran) {
+	list.addHead(tran);
+}
 
 void ListTransaction::load(string path) {
 	ifstream fin(path);
@@ -531,16 +634,24 @@ void ListTransaction::load(string path) {
 	if (fin.is_open()) {
 		while (!fin.eof()) {
 			string type;
-			fin >> type;
+			DateTime time;
+			getline(fin, type);
+			fin >> time;
 			Transaction* temp;
 			if (type == "withrawatm") {
 				temp = new WithrawATM;
 				temp->load(fin);
 			}
-			else {
+			else if(type == "transfer") {
 				temp = new Transfer;
 				temp->load(fin);
 			}
+			else {
+				temp = new BeTransfer;
+				temp->load(fin);
+			}
+			temp->_type = type;
+			temp->_time = time;
 			list.addTail(temp);
 		}
 	}
