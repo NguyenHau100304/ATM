@@ -586,7 +586,7 @@ void ListAccount::display(int start, int end, short x, short y, LinkedList<strin
 				gotoxy(x + 20, y);
 				cout << current->_data.getName();
 				gotoxy(x + 45, y);
-				cout << setw(19) << right << current->_data._money;
+				cout << setw(23) << right << current->_data._money;
 				gotoxy(x + 69, y);
 				if (isBlock)
 					cout << "KHOA";

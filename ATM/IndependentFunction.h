@@ -26,6 +26,13 @@ string setFill(int n) {
 	return s;
 }
 
+int stringToInt(string s) {
+	int n = 0;
+	for (char& c : s) {
+		n = n * 10 + (int(c) - 48);
+	}
+	return n;
+}
 
 bool compareUserbyName(User a, User b) {
 	return a.getName() < b.getName();
@@ -42,7 +49,6 @@ bool compareUserbyNameGreater(User a, User b) {
 bool compareUserbyMoneyGreater(User a, User b) {
 	return a.getAmount().getAmount() < b.getAmount().getAmount();
 }
-
 
 bool isNumber(char c) {
 	return c >= '0' && c <= '9';

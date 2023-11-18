@@ -278,7 +278,8 @@ ostream& operator<< (ostream& _os, Money _money) {
 		s.erase(0, 1);
 	int start = s.length();
 	while (s[--start] != '.');
-
+	if (start <= 0)
+		start = s.length();
 	int length = s.length();
 	for (int i = start - 3; i > 0; i -= 3) {
 		s.insert(i, ".");
@@ -286,7 +287,10 @@ ostream& operator<< (ostream& _os, Money _money) {
 	while (s[s.length() - 3] != '.')
 		s.erase(s.length() - 1, 1);
 	s[s.length() - 3] = ',';
-	_os << (_money.getAmount() < 0 ? '-' : '\0') << s << " " << _money._type;
+	if (_money.getAmount() < 0)
+		s = '-' + s;
+	s = s + ' ' + _money.getType();
+	_os << s;
 	return _os;
 }
 

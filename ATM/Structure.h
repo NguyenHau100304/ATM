@@ -293,21 +293,30 @@ void LinkedList<DataType>::removeTail() {
 
 template<class DataType>
 void LinkedList<DataType>::remove(DataType data) {
-	Node<DataType>* pWalker = _pHead, * pTemp = NULL;
-	while ((pWalker != NULL) && (pWalker->_data != data)) {
-		pTemp = pWalker;
-		pWalker = pWalker->_pNext;
-	}
-	if (pWalker == NULL)
-		return;
-	if (pTemp != NULL) {
-		if (pWalker == _pTail) {
-			_pTail = pTemp;
-			_pTail->_pNext = NULL;
+	Node<DataType>* current = _pHead;
+	Node<DataType>* previous = NULL;
+
+	while (current) {
+		if (current->_data == data) {
+			if (current == _pHead) {
+				removeHead();
+				current = _pHead;
+			}
+			else if (current == _pTail) {
+				removeTail();
+				current = NULL;
+			}
+			else {
+				previous->_pNext = current->_pNext;
+				delete current;
+				current = previous->_pNext;
+				_iSize--;
+			}
 		}
-		pTemp->_pNext = pWalker->_pNext;
-		delete pWalker;
-		--_iSize;
+		else {
+			previous = current;
+			current = current->_pNext;
+		}
 	}
 }
 

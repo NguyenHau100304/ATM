@@ -134,7 +134,7 @@ void drawTableList() {
 	clrscr();
 	setTextColor(RED);
 	gotoxy(19, 0);
-	cout << "  DANH SACH CAC TAI KHOAN";
+	cout << "         DANH SACH CAC TAI KHOAN";
 
 
 	setTextColor(BLACK);
@@ -178,4 +178,14 @@ void drawTableList() {
 		gotoxy(TAGs[i].x + ((TAGs[i + 1].x - TAGs[i].x) / 2) - NAMETAGs[i].length() / 2 - 1, TAGs[i].y);
 		cout << NAMETAGs[i];
 	}
+}
+
+
+void drawNut(short x, short y, short color, short bgcolor) {
+	setTextBGColor(bgcolor);
+	setTextColor(color);
+	gotoxy(x, y);
+	cout << char(32) << char(220) << char(32);
+	gotoxy(x, y + 1);
+	cout << char(32) << char(223) << char(32);
 }
