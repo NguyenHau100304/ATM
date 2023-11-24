@@ -23,10 +23,10 @@ private:
 	void unblockUser();
 	void adminMenu();
 	void printInfoUser(User& user);
-	void transfer(User& user);
+	bool transfer(User& user);
 	void printListTransPerPage(int, LinkedList<string>&);
 	void printListTrans(User& user);
-	void withrawMoney(User& user);
+	bool withrawMoney(User& user);
 	bool changePassword(User& user);
 	void userMenu(User& user);
 	void loginPasswordAdmin(Admin&);
@@ -70,7 +70,6 @@ void ATM::waiting(int second) {
 	}
 	showCursor(true);
 }
-
 
 void ATM::printListPerPage(int page, int sort, ListAccount& list, LinkedList<string>& listIdBlocked) {
 	POINT TAGs[3] = {
@@ -727,6 +726,13 @@ __BACK__:
 							listAccount.removeUserById(inputId);
 							listAccount.saveCard("./data/TheTu.txt");
 							listAccount.save("./data/");
+							string fileName = "./data/" + inputId + ".txt";
+						
+							if (std::remove(fileName.c_str()) != 0);
+							fileName = "./data/TransactionHistory/LichSu" + inputId + ".txt";
+							if (std::remove(fileName.c_str()) != 0);
+
+
 							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
 							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
 							setTextBGColor(AQUA);
@@ -1423,7 +1429,7 @@ __INIT__:
 	_getch();
 }
 
-void ATM::withrawMoney(User& user) {
+bool ATM::withrawMoney(User& user) {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
 __INIT__:
@@ -1483,7 +1489,7 @@ __INIT__:
 				cout << " BACK - Esc ";
 				Beep(800, 50);
 				Sleep(50);
-				return;
+				return true;
 			}
 			if (c == '\r' && !inputId.empty()) {
 				int money = stringToInt(inputId);
@@ -1543,7 +1549,7 @@ __INIT__:
 							cout << tien;
 							showCursor(false);
 							_getch();
-							return;
+							return confirmProcess("BAN CO MUON THUC HIEN GIAO DICH KHAC?");
 						}
 						else
 						{
@@ -1590,7 +1596,7 @@ __INIT__:
 
 }
 
-void ATM::transfer(User& user) {
+bool ATM::transfer(User& user) {
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
 __INIT__:
@@ -1665,7 +1671,7 @@ __BACK__:
 				cout << " BACK - Esc ";
 				Beep(800, 50);
 				Sleep(50);
-				return;
+				return true;
 			}
 			if (c == '\r' && !inputId.empty()) {
 				User Temp = listAccount.getUserById(inputId);
@@ -1746,7 +1752,7 @@ __BACK__:
 										setTextColor(BLACK);
 										cout << "CHUYEN KHOAN THANH CONG";
 										_getch();
-										return;
+										return confirmProcess("BAN CO MUON THUC HIEN GIAO DICH KHAC ?");
 									}
 									else 
 										goto __BACK__;
@@ -2434,13 +2440,17 @@ __INIT__:
 					break;
 				}
 				case 1: {
-					withrawMoney(user);
-					goto __INIT__;
+					if (withrawMoney(user))
+						goto __INIT__;
+					else
+						return;
 					break;
 				}
 				case 2: {
-					transfer(user);
-					goto __INIT__;
+					if (transfer(user))
+						goto __INIT__;
+					else
+						return;
 					break;
 				}
 				case 3: {
@@ -2810,12 +2820,17 @@ __INIT__:
 		cout << nameButton[i];
 	}
 	short choose = 0;
-	string runningString = "    NGAN HANG BANG HAI TAC MU ROM    ";
-	int len = runningString.length(), lenLarge = g_initMenuWidth;
-	runningString = setFill(len) + runningString;
-	runningString = runningString + setFill(len);
+	int lenLarge = g_initMenuWidth;
 	int runWord = 0, runWordL = 0;
 
+
+	int jump = 0, move = 0;
+	string stringMoving = "A1@BC2#DE$F4G6%H7I&7JK5*L8 M!9NO#-P0Q3~R4S6T7U2VW8SYZ";
+	string magicString[2] = {
+		"     NGAN HANG BANG HAI TAC MU ROM   ",
+		"TIEN PHONG - SANG TAO - CHUYEN DOI SO"
+	};
+	string jumpString = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 	string runLargeName[6];
 	ifstream fin("./art/FullNameBank.txt");
 	for (int i = 0; i < 6; ++i) {
@@ -2825,11 +2840,31 @@ __INIT__:
 	}
 	fin.close();
 	while (true) {
-		gotoxy(g_initMenuX + 18, g_initMenuY + 15);
 		setTextBGColor(BLACK);
-		setTextColor(rand() % 15);
-		cout << runningString.substr(runWord++, len);
-		runWord = runWord >= len * 2 ? 0 : runWord;
+		gotoxy(g_initMenuX + 19, g_initMenuY + 15);
+		if (move++ < stringMoving.size()) {
+			char c = stringMoving[move - 1];
+			for (int k = 0; k < 38; ++k) {
+				if (c == magicString[jump][k] || jumpString[k] == magicString[jump][k])
+					jumpString[k] = magicString[jump][k];
+				else
+					jumpString[k] = stringMoving[rand() % 53];
+			}
+			for (char& f : jumpString) {
+				short r;
+				do {
+					r = rand() % 15;
+				} while (r == BLACK);
+				setTextColor(GRAY);
+				cout << f;
+			}
+			//Sleep(100);
+		}
+		else if (move >= 70) {
+			move = 0;
+			jump = (jump == 0 ? 1 : 0);
+		}
+
 
 		setTextBGColor(YELLOW);
 		setTextColor(RED);
