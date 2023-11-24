@@ -4,6 +4,9 @@
 #include "IndependentFunction.h"
 #include "Drawing.h"
 
+
+using namespace drawing;
+
 class ATM
 {
 private:
@@ -21,11 +24,14 @@ private:
 	void adminMenu();
 	void printInfoUser(User& user);
 	void transfer(User& user);
+	void printListTransPerPage(int, LinkedList<string>&);
 	void printListTrans(User& user);
 	void withrawMoney(User& user);
+	bool changePassword(User& user);
 	void userMenu(User& user);
 	void loginPasswordAdmin(Admin&);
 	void loginPasswordUser(User&);
+	bool inputPassword(User&);
 public:
 	ATM();
 	~ATM();
@@ -37,6 +43,7 @@ public:
 
 
 void ATM::init() {
+	SetConsoleTitle(L"ATM");
 	listAdmin.load("./data/Admin.txt");
 	listAccount.load("./data/", "./data/TheTu.txt");
 	listIdBlocked.load("./data/AccountBlocked/ALL.txt");
@@ -149,7 +156,7 @@ void ATM::printListUsers() {
 	cout << "Trang " << page << '/' << maxPage;
 
 	showCursor(false);
-	bool isSearch = false, isCurrentSearch = false;
+	bool isSearch = false, isCurrectSearch = false;
 	while (true) {
 		if (_kbhit) {
 			char c = _getch();
@@ -248,9 +255,9 @@ void ATM::printListUsers() {
 				}
 			}
 			else {
-				if (isCurrentSearch) {
+				if (isCurrectSearch) {
 					list = listAccount;
-					isCurrentSearch = false;
+					isCurrectSearch = false;
 				}
 				setTextBGColor(BLACK);
 				setTextColor(WHITE);
@@ -269,7 +276,7 @@ void ATM::printListUsers() {
 				}
 				if (c == '\r') {
 					list = list.searching(input);
-					isCurrentSearch = true;
+					isCurrectSearch = true;
 					goto __PRINTLIST__;
 				}
 				else if (c == '\b')
@@ -428,7 +435,7 @@ __BACK__:
 
 	do {
 		input[0] = getRandomId();
-	} while (listAccount.isHasUser(input[0]));
+	} while (input[0].at(0) == '0' || listAccount.isHasUser(input[0]));
 	gotoxy(hoverText[0].x, hoverText[0].y);
 	cout << input[0];
 
@@ -466,7 +473,7 @@ __BACK__:
 			if (c == KEY_F5) {
 				do {
 					input[0] = getRandomId();
-				} while (listAccount.isHasUser(input[0]));
+				} while (input[0].at(0) == '0' || listAccount.isHasUser(input[0]));
 				gotoxy(hoverText[0].x, hoverText[0].y);
 				setTextBGColor(GRAY);
 				setTextColor(BLACK);
@@ -1136,7 +1143,7 @@ LOGIN:
 					cout << "                         ";
 					showCursor(false);
 				}
-				else if(isCurrent(admin, pw)) {
+				else if(isCurrect(admin, pw)) {
 					gotoxy(passInputX + 13, passInputY + 2);
 					setTextBGColor(LIGHT_RED);
 					setTextColor(LIGHT_BLUE);
@@ -1820,13 +1827,526 @@ __BACK__:
 
 }
 
+void ATM::printListTransPerPage(int page, LinkedList<string>& list) {
+	int i = 3;
+	for (LinkedList<string>::Iterator it = list.begin() + page; it != list.end(); ++it) {
+		string s = *it;
+		if (i >= 29 || i + s.size() / 79 >= 29)
+			break;
+		while (!s.empty()) {
+			gotoxy(1, i++);
+			int breakline = 79;
+			if (s.size() > 79) {
+				while (s[breakline] != 32)
+					--breakline;
+			}
+			cout << s.substr(0, breakline + 1);
+			s.erase(0, breakline + 1);
+		}
+		gotoxy(1, i);
+		for (int k = 0; k < 79; ++k)
+			cout << '-';
+		++i;
+	}
+	showCursor(false);
+}
+
 void ATM::printListTrans(User& user) {
 	clrscr();
-	user._trans.display();
+	drawTransList();
+	setTextColor(BLACK);
+	gotoxy(83, 3);
+	cout << "F3 - search";
+	setTextColor(LIGHT_RED);
+	gotoxy(83, 8);
+	cout << "HOT KEY:";
+	setTextColor(AQUA);
+	gotoxy(83, 10);
+	cout << "ARROW UP - scroll list up";
+	gotoxy(83, 12);
+	cout << "ARROW DOWN - scroll list down";
+	gotoxy(83, 14);
+	cout << "ESC - quit";
+
+	LinkedList<string> content; 
+	content = user._trans.createContent(user._money, listAccount);
+	LinkedList<string> list(content);
+	int page = 0;
+	string input = "";
+	setTextColor(BLACK);
+	printListTransPerPage(0, list);
+	//------------------------------------------------------------------------------------------------------
+	showCursor(false);
+	bool isSearch = false, isCurrectSearch = false;
+	while (true) {
+		if (_kbhit) {
+			char c = _getch();
+			if (c == 0)
+				c = _getch();
+
+			if (c == -32) {
+				c = _getch();
+				if (c == KEY_UP){
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 10);
+					cout << "ARROW UP - scroll list up";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 10);
+					cout << "ARROW UP - scroll list up";
+					if (page - 1 >= 0)
+						--page;
+						
+				}
+				else if (c == KEY_DOWN) {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 12);
+					cout << "ARROW DOWN - scroll list down";
+					Beep(600, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 12);
+					cout << "ARROW DOWN - scroll list down";
+					if (page + 1 < list.getSize() - 6)
+						++page;
+				}
+				goto __PRINTLIST__;
+			}
+			if (!isSearch) {
+				if (c == ESC) {
+					setTextColor(AQUA);
+					setTextBGColor(YELLOW);
+					gotoxy(83, 14);
+					cout << "ESC - quit";
+					Beep(800, 50);
+					Sleep(50);
+					setTextBGColor(WHITE);
+					gotoxy(83, 14);
+					cout << "ESC - quit";
+					list.clear();
+					return;
+				}
+
+				if (c == KEY_F3) {
+					isSearch = true;
+					gotoxy(83, 5);
+					cout << "BACK - ESC       FIND - Enter";
+					gotoxy(83, 4);
+					setTextBGColor(BLACK);
+					setTextColor(GRAY);
+					cout << "Find..                       ";
+					setTextColor(WHITE);
+					gotoxy(83, 4);
+					showCursor(true);
+					continue;
+				}
+			}
+			else {
+				if (isCurrectSearch) {
+					list = content;
+					isCurrectSearch = false;
+				}
+				setTextBGColor(BLACK);
+				setTextColor(WHITE);
+				gotoxy(83 + input.length(), 4);
+				showCursor(true);
+				if (c == ESC || c == KEY_F3) {
+					setTextBGColor(WHITE);
+					gotoxy(83, 4);
+					cout << "                              ";
+					gotoxy(83, 5);
+					cout << "                              ";
+					isSearch = false;
+					input.clear();
+					list = content;
+					goto __PRINTLIST__;
+				}
+				if (c == '\r') {
+					page = 0;
+					list.removeIf([input](string s)-> bool {return indexOf(input, s) == -1; });
+					isCurrectSearch = true;
+					goto __PRINTLIST__;
+				}
+				else if (c == '\b')
+				{
+					if (!input.empty()) {
+						cout << "\b  \b";
+						input.pop_back();
+						gotoxy(83 + input.length(), 4);
+					}
+					if (input.empty()) {
+						gotoxy(83, 4);
+						setTextBGColor(BLACK);
+						setTextColor(GRAY);
+						cout << "Find..                       ";
+						setTextColor(WHITE);
+					}
+				}
+				else if (c != 0 && input.length() < 29) {
+					gotoxy(83 + input.length(), 4);
+					cout << c;
+					input.push_back(c);
+					if (input.length() == 1) {
+						gotoxy(84, 4);
+						cout << setFill(28);
+						gotoxy(83 + input.length(), 4);
+					}
+				}
+			}
+			if (!isSearch) {
+			__PRINTLIST__:
+				createBox(1, 3, 80, 27, WHITE);
+				setTextBGColor(WHITE);
+				setTextColor(BLACK);
+				printListTransPerPage(page, list);
+			}
+		}
+	}
+	
+
+
+
+
+
+
+	//----------------------------------------------------------------------------------------------------
+	
 	_getch();
 }
 
+bool ATM::changePassword(User& user) {
+LOGIN:
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
+
+
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', WHITE, LIGHT_BLUE);
+	setTextBGColor(YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
+
+	drawBorder(g_initMenuX + 24, g_initMenuY + 3, 29, 3, 1, RED, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 24 + 7, g_adminMenuY + 4);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "NHAP MA PIN MOI";
+	int userInputY = g_loginRectY + 6;
+
+	short time = 1;
+	string pw1 = "";
+	string pw;
+
+	POINT box[6] = {
+		{g_loginRectX - 1, userInputY},
+		{g_loginRectX + 7, userInputY},
+		{g_loginRectX + 15, userInputY},
+		{g_loginRectX + 23, userInputY},
+		{g_loginRectX + 31, userInputY},
+		{g_loginRectX + 39, userInputY}
+	};
+__INPUT_AGAIN__:
+	if (time == 2) {
+		pw1 = pw;
+		gotoxy(g_adminMenuX + 24 + 7, g_adminMenuY + 4);
+		setTextColor(RED);
+		setTextBGColor(LIGHT_GREEN);
+		cout << "NHAP LAI MA PIN";
+	}
+
+__WRONGINPUT__:
+
+	pw = "";
+	for (int i = 0; i < 6; ++i) {
+		createBox(box[i].x, box[i].y, 3, 2, GRAY);
+	}
+
+	gotoxy(passInputX - 12, passInputY - 1);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+	gotoxy(passInputX + 19, passInputY - 1);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "LOGIN - Enter";
+
+
+	/***************************************************************
+
+							KEYBOARD EVENT
+
+	****************************************************************/
+
+	while (true) {
+		showCursor(false);
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(passInputX - 12, passInputY - 1);
+				setTextBGColor(RED);
+				setTextColor(LIGHT_GREEN);
+				cout << " BACK - Esc ";
+				showCursor(false);
+				Beep(800, 50);
+				Sleep(50);
+				return false;
+			}
+			if (c == 0 || c == 224)
+				c = _getch();
+
+			if (c == '\r') {
+			__ENTERLOGIN__:
+				if (pw.length() < 6) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(passInputX - 2, passInputY - 4);
+					cout << "Khong duoc bo trong PIN!";
+					showCursor(false);
+					_getch();
+					gotoxy(passInputX - 2, passInputY - 4);
+					cout << "                         ";
+					showCursor(false);
+				}
+				else if (time == 2 || (pw != "123456" && !isCurrect(user, pw))) {
+					gotoxy(passInputX + 19, passInputY - 1);
+					setTextBGColor(LIGHT_RED);
+					setTextColor(LIGHT_BLUE);
+					cout << "LOGIN - Enter";
+					Beep(800, 50);
+					Sleep(50);
+					gotoxy(passInputX + 19, passInputY - 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(LIGHT_BLUE);
+					cout << "LOGIN - Enter";
+					if (time < 2) {
+						++time;
+						goto __INPUT_AGAIN__;
+					}
+					else if (pw == pw1) {
+						if (confirmProcess("Ban co chac muon doi ma PIN ?")) {
+							user._password = encoding(pw);
+							listAccount.saveCard("./data/TheTu.txt");
+							createBox(g_adminMenuX, g_adminMenuY + 3, g_adminMenuWidth, 7, AQUA);
+							gotoxy((g_adminMenuWidth / 2 + g_adminMenuX) - 7, g_adminMenuY + 6);
+							setTextBGColor(AQUA);
+							setTextColor(BLACK);
+							cout << "DA DOI MA PIN";
+							showCursor(false);
+							_getch();
+							return true;
+						}
+					}
+					else {
+						Beep(1000, 200);
+						gotoxy(passInputX - 1, passInputY - 4);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						cout << "     Ma PIN khong khop!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(passInputX - 1, passInputY - 4);
+						cout << "                       ";
+						goto __WRONGINPUT__;
+					}
+					return false;
+				}
+				else {
+					Beep(1000, 200);
+					gotoxy(passInputX - 1, passInputY - 4);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					cout << "Khong duoc doi PIN mac dinh!";
+					showCursor(false);
+					_getch();
+					showCursor(true);
+					gotoxy(passInputX - 1, passInputY - 4);
+					cout << "                            ";
+				}
+				continue;
+			}
+			else if (c == '\b') {
+				if (!pw.empty()) {
+					Beep(600, 50);
+					createBox(box[pw.length() - 1].x, box[pw.length() - 1].y, 3, 2, GRAY);
+					pw.pop_back();
+				}
+			}
+			else if (isNumber(c) && pw.length() < 6) {
+				Beep(600, 50);
+				drawNut(box[pw.length()].x, box[pw.length()].y, BLACK, GRAY);
+				pw.push_back(c);
+				showCursor(false);
+			}
+
+		}
+	}
+}
+
+bool ATM::inputPassword(User& user) {
+LOGIN:
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	printArt(17, 0, "./art/NameBank.txt", RED, YELLOW);
+
+
+	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+	clrscr();
+	createBox(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, LIGHT_GREEN);
+	drawBorder(g_adminMenuX, g_adminMenuY, g_adminMenuWidth, g_adminMenuHeight, '*', WHITE, LIGHT_BLUE);
+	setTextBGColor(YELLOW);
+	printArt(17, 0, "./art/UserMenu.txt", RED, YELLOW);
+
+	drawBorder(g_initMenuX + 24, g_initMenuY + 3, 29, 3, 1, RED, LIGHT_GREEN);
+	gotoxy(g_adminMenuX + 24 + 9, g_adminMenuY + 4);
+	setTextColor(RED);
+	setTextBGColor(LIGHT_GREEN);
+	cout << "NHAP MA PIN";
+	int userInputY = g_loginRectY + 6;
+
+	POINT box[6] = {
+		{g_loginRectX - 1, userInputY},
+		{g_loginRectX + 7, userInputY},
+		{g_loginRectX + 15, userInputY},
+		{g_loginRectX + 23, userInputY},
+		{g_loginRectX + 31, userInputY},
+		{g_loginRectX + 39, userInputY}
+	};
+
+	for (int i = 0; i < 6; ++i) {
+		createBox(box[i].x, box[i].y, 3, 2, GRAY);
+	}
+
+	gotoxy(passInputX - 12, passInputY - 1);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "BACK - Esc";
+
+	gotoxy(passInputX + 19, passInputY - 1);
+	setTextBGColor(LIGHT_GREEN);
+	setTextColor(LIGHT_BLUE);
+	cout << "LOGIN - Enter";
+
+
+	/***************************************************************
+
+							KEYBOARD EVENT
+
+	****************************************************************/
+	string pw;
+	while (true) {
+		showCursor(false);
+		if (_kbhit()) {
+			char c = _getch();
+			if (c == ESC) {
+				gotoxy(passInputX - 12, passInputY - 1);
+				setTextBGColor(RED);
+				setTextColor(LIGHT_GREEN);
+				cout << " BACK - Esc ";
+				showCursor(false);
+				Beep(800, 50);
+				Sleep(50);
+				return false;
+			}
+			if (c == 0 || c == 224)
+				c = _getch();
+
+			if (c == '\r') {
+			__ENTERLOGIN__:
+				if (pw.length() < 6) {
+					Beep(1000, 200);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					gotoxy(passInputX - 2, passInputY - 4);
+					cout << "Khong duoc bo trong PIN!";
+					showCursor(false);
+					_getch();
+					gotoxy(passInputX - 2, passInputY - 4);
+					cout << "                         ";
+					showCursor(false);
+				}
+				else if (isCurrect(user, pw)) {
+					gotoxy(passInputX + 19, passInputY - 1);
+					setTextBGColor(LIGHT_RED);
+					setTextColor(LIGHT_BLUE);
+					cout << "LOGIN - Enter";
+					Beep(800, 50);
+					Sleep(50);
+					wrongTime = 0;
+					return true;
+				}
+				else {
+					if (++wrongTime == 3) {
+						setConsoleBackgroundColor(BACKGROUND_RED);
+						clrscr();
+						listIdBlocked.addTail(user._id);
+						listIdBlocked.save("./data/AccountBlocked/ALL.txt");
+						listAccount.~ListAccount();
+						listAdmin.~ListAdministrator();
+						listIdBlocked.~LinkedList();
+						setTextBGColor(RED);
+						setTextColor(YELLOW);
+						gotoxy(userInputX, userInputY - 5);
+						cout << "!!!BAN DA NHAP SAI QUA NHIEU LAN!!!";
+						gotoxy(userInputX, userInputY - 4);
+						cout << " DE DAM BAO AN TOAN CHO KHACH HANG";
+						gotoxy(userInputX, userInputY - 3);
+						cout << "********TAI KHOAN DA BI KHOA*******";
+						while (++wrongTime <= 25) {
+							Beep(1200, 200);
+							Sleep(100);
+						}
+						exit(0);
+					}
+					else {
+						Beep(1000, 200);
+						gotoxy(passInputX - 2, passInputY - 4);
+						setTextBGColor(LIGHT_GREEN);
+						setTextColor(RED);
+						cout << "Ban da nhap sai mat khau!";
+						showCursor(false);
+						_getch();
+						showCursor(true);
+						gotoxy(passInputX - 2, passInputY - 4);
+						cout << "                         ";
+					}
+				}
+				continue;
+			}
+			else if (c == '\b') {
+				if (!pw.empty()) {
+					Beep(600, 50);
+					createBox(box[pw.length() - 1].x, box[pw.length() - 1].y, 3, 2, GRAY);
+					pw.pop_back();
+				}
+			}
+			else if (isNumber(c) && pw.length() < 6) {
+				Beep(600, 50);
+				drawNut(box[pw.length()].x, box[pw.length()].y, BLACK, GRAY);
+				pw.push_back(c);
+				showCursor(false);
+			}
+
+		}
+	}
+
+
+
+
+}
+
 void ATM::userMenu(User& user) {
+	if (isCurrect(user, "123456")) {
+		if (!changePassword(user))
+			return;
+	}
 __INIT__:
 	setConsoleBackgroundColor(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 	clrscr();
@@ -1929,7 +2449,8 @@ __INIT__:
 					break;
 				}
 				case 4: {
-					
+					if (inputPassword(user))
+						changePassword(user);
 					goto __INIT__;
 					break;
 				}
@@ -2030,7 +2551,7 @@ LOGIN:
 					cout << "                         ";
 					showCursor(false);
 				}
-				else if (isCurrent(user, pw)) {
+				else if (isCurrect(user, pw)) {
 					gotoxy(passInputX + 13, passInputY + 2);
 					setTextBGColor(LIGHT_RED);
 					setTextColor(LIGHT_BLUE);
@@ -2062,6 +2583,7 @@ LOGIN:
 							Beep(1200, 200);
 							Sleep(100);
 						}
+						exit(0);
 					}
 					else {
 						Beep(1000, 200);

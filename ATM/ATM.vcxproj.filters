@@ -58,20 +58,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="NameBank.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="ATM.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="data\Admin.txt">
       <Filter>Resource Files\Account</Filter>
     </Text>
     <Text Include="data\TheTu.txt">
       <Filter>Resource Files\Account</Filter>
-    </Text>
-    <Text Include="MenuAdmin.txt">
-      <Filter>Resource Files</Filter>
     </Text>
     <Text Include="data\4801103024.txt">
       <Filter>Resource Files\Account</Filter>
@@ -84,9 +75,6 @@
     </Text>
     <Text Include="data\4801103028.txt">
       <Filter>Resource Files\Account</Filter>
-    </Text>
-    <Text Include="Space.txt">
-      <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
 </Project>

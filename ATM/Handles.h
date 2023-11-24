@@ -16,8 +16,8 @@ class Admin;
 
 
 
-bool isCurrent(const Admin, string);
-bool isCurrent(const User, string);
+bool isCurrect(const Admin, string);
+bool isCurrect(const User, string);
 int indexOf(string f, string s);
 bool isHas(User& user, string find);
 
@@ -33,7 +33,7 @@ public:
 	Admin(const Admin&);
 	~Admin();
 	string getUser();
-	friend bool isCurrent(const Admin, string);
+	friend bool isCurrect(const Admin, string);
 };
 
 
@@ -54,6 +54,8 @@ public:
 	virtual void load(ifstream&) = NULL;
 	virtual void save(ofstream&) = NULL;
 	virtual void display() = NULL;
+	virtual Money getMoney() = NULL;
+	virtual string getTargetId() = NULL;
 };
 
 class WithrawATM : public Transaction {
@@ -69,6 +71,7 @@ public:
 	void display() {
 		cout << _type << ' ' << _time << ' ' << _wrMoney << '\n';
 	}
+	string getTargetId();
 };
 
 class Transfer : public Transaction {
@@ -83,7 +86,6 @@ public:
 	void load(ifstream&);
 	Money getMoney();
 	string getTargetId();
-	User getTarget(ListAccount&);
 	void display() {
 		cout << _type << ' ' << _time << " -" << _trsmoney << ' ' << _targetId << '\n';
 	}
@@ -168,6 +170,7 @@ public:
 	~ListTransaction();
 	int getSize();
 	void append(Transaction*);
+	LinkedList<string> createContent(Money, ListAccount&);
 	void display() {
 		Node<Transaction*>* curr = list._pHead;
 		while (curr) {
@@ -193,7 +196,6 @@ private:
 	Name _fullname;
 	Money _money;
 	ListTransaction _trans;
-	void saveTransaction(string);
 public:
 	User();
 	User(string, string, Name, Money);
@@ -202,7 +204,7 @@ public:
 	Name getName();
 	Money getAmount();
 	bool operator< (User);
-	friend bool isCurrent(const User, string);
+	friend bool isCurrect(const User, string);
 };
 
 
@@ -231,13 +233,13 @@ string Admin::getUser() {
 	return this->_id;
 }
 
-bool isCurrent(const Admin a, string pw) {
+bool isCurrect(const Admin a, string pw) {
 	if (decoding(a._password) == pw)
 		return true;
 	return false;
 }
 
-bool isCurrent(const User a, string pw) {
+bool isCurrect(const User a, string pw) {
 	if (decoding(a._password) == pw)
 		return true;
 	return false;
@@ -325,6 +327,9 @@ void WithrawATM::load(ifstream& fin) {
 		throw runtime_error("Cannot open file\n");
 }
 
+string WithrawATM::getTargetId() {
+	return "ATM";
+}
 
 void Transfer::save(ofstream& fout) {
 	if (fout.is_open()) {
@@ -362,10 +367,6 @@ Money Transfer::getMoney() {
 }
 string Transfer::getTargetId() {
 	return _targetId;
-}
-
-User Transfer::getTarget(ListAccount& list) {
-	return list.getUserById(_targetId);
 }
 
 
@@ -618,9 +619,9 @@ void ListAccount::transfer(string id1, string id2, int m) {
 	user2._money.setAmount(m);
 	Transaction* trasU1;
 	if (user1._money.getType() == "USD")
-		trasU1 = new Transfer(id2, Money(float(m / 24580), "USD"));
+		trasU1 = new Transfer(id2, Money(-float(m / 24580), "USD"));
 	else
-		trasU1 = new Transfer(id2, Money(m, "VND"));
+		trasU1 = new Transfer(id2, Money(-m, "VND"));
 	user1._trans.append(trasU1);
 	Transaction* trasU2;
 	if (user2._money.getType() == "USD")
@@ -699,7 +700,37 @@ void ListTransaction::save(string path) {
 	fout.close();
 }
 
-
+LinkedList<string> ListTransaction::createContent(Money money, ListAccount& listAccount) {
+	LinkedList<string> content;
+	Node<Transaction*>* curr = list._pHead;
+	while (curr) {
+		string s;
+		s = "So du ";
+		if (curr->_data->getMoney().getAmount() > 0)
+			s = s + '+';
+		s = s + curr->_data->getMoney().stringnify();
+		s = s + " vao luc " + curr->_data->getDateTime().stringnify() + ". ";
+		s = s + "SD hien tai " + money.stringnify() + ". ";
+		if (curr->_data->_type == "withrawatm") {
+			s = s + "ND: Rut tien tu ATM.";
+			money.setAmount(-curr->_data->getMoney().getAmount());
+		}
+		else if (curr->_data->_type == "transfer") {
+			s = s + "ND: Chuyen khoang den " + curr->_data->getTargetId() + ' ';
+			s = s + listAccount.getUserById(curr->_data->getTargetId()).getName().getFullName();
+			money.setAmount(-curr->_data->getMoney().getAmount());
+		}
+		else if (curr->_data->_type == "betransfer") {
+			s = s + "ND: Nhan chuyen khoang tu " + curr->_data->getTargetId() + ' ';
+			s = s + listAccount.getUserById(curr->_data->getTargetId()).getName().getFullName();
+			money.setAmount(-curr->_data->getMoney().getAmount());
+		}
+		content.addTail(s);
+		
+		curr = curr->_pNext;
+	}
+	return content;
+}
 
 
 void ListAdministrator::load(string path) {

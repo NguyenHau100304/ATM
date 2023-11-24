@@ -35,13 +35,12 @@ public:
 	string getType();
 	float getMoney();
 	void setAmount(float);
+	void setCorrectAmnt(float);
 	void setType(string);
+	string stringnify();
 	friend std::istream& operator>> (std::istream&, Money&);
 	friend std::ostream& operator<< (std::ostream&, Money);
 };
-
-
-int maxOfDay[13] = { 0,31,28,31,30,31,30,31,31,30,31,30,31 };
 
 class DateTime {
 	int _h, _m, _s;
@@ -60,6 +59,7 @@ public:
 	int getMonth();
 	int getYear();
 	void display();
+	string stringnify();
 	friend std::istream& operator>> (std::istream&, DateTime&);
 	friend std::ostream& operator<< (std::ostream&, DateTime);
 };
@@ -107,6 +107,13 @@ int DateTime::getYear() {
 void DateTime::display() {
 	cout << _h << ':' << _m << ':' << _s << ' ' << _day << '/' << _month << '/' << _year << '\n';
 }
+
+string DateTime::stringnify() {
+	string s = to_string(_h) + ':' + to_string(_m) + ':' + to_string(_s) + ' ';
+	s = s + to_string(_day) + '/' + to_string(_month) + '/' + to_string(_year);
+	return s;
+}
+
 std::istream& operator>> (std::istream& in, DateTime& d) {
 	std::string s;
 	std::getline(in, s);
@@ -265,6 +272,10 @@ void Money::setAmount(float m) {
 	_amount += m;
 }
 
+void Money::setCorrectAmnt(float m) {
+	_amount = m;
+}
+
 istream& operator>> (istream& _is, Money& _money) {
 	_is >> _money._amount >> _money._type;
 	if (_money._type == "USD")
@@ -294,3 +305,24 @@ ostream& operator<< (ostream& _os, Money _money) {
 	return _os;
 }
 
+
+string Money::stringnify() {
+	string s = std::to_string(getMoney());
+	if (s[0] == '-')
+		s.erase(0, 1);
+	int start = s.length();
+	while (s[--start] != '.');
+	if (start <= 0)
+		start = s.length();
+	int length = s.length();
+	for (int i = start - 3; i > 0; i -= 3) {
+		s.insert(i, ".");
+	}
+	while (s[s.length() - 3] != '.')
+		s.erase(s.length() - 1, 1);
+	s[s.length() - 3] = ',';
+	if (getAmount() < 0)
+		s = '-' + s;
+	s = s + ' ' + getType();
+	return s;
+}

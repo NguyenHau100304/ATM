@@ -1,7 +1,7 @@
 ﻿#include "Server.h"
-
+#include<algorithm>
 int main(){
-	SetConsoleTitle(L"ATM");
-	atm.runProcess();
+	server::run();
+	
     return 0;
 }

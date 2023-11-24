@@ -2,5 +2,12 @@
 
 #include "ATM.h"
 
-ATM atm;
 
+namespace server {
+	ATM atm;
+
+	void run() {
+		atm.runProcess();
+	}
+
+}

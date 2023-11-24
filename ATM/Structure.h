@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include<iostream>
+#include <iostream>
+#include <functional>
 #define INF 1e6
 
 using std::istream;
@@ -59,8 +60,10 @@ public:
 	void removeTail();
 	void remove(DataType data);
 	void removeNode(Node<DataType>* node);
+	void removeAllExcept(bool (*func)(DataType));
 	void removeAfter(DataType data);
-	void removeIf(bool (*func)(DataType));
+
+	void removeIf(std::function<bool(DataType)> func);
 	void removeAt(int index);
 	float getAvg();
 	void selectionSort();
@@ -72,26 +75,61 @@ public:
 	void clear();
 	void getElementAtPosition(int index);
 	Node<DataType>* operator [] (int index);
-
 	LinkedList<DataType> createFilterList(bool (*func)(DataType));
-
 	void removeFirstIf(DataType a);
-
 	int countElement(DataType data);
-
 	void removeDuplicates();
-
 	void interchangeSort();
-
 	void input();
 	DataType findMin();
 	DataType findMax();
-
 	void insertAfter(DataType p, DataType q);
 	void appendList(LinkedList<DataType>& otherList);
-
 	bool operator== (LinkedList<DataType> list);
 	LinkedList<DataType>& operator= (const LinkedList<DataType>& list);
+
+	// Iterator for LinkedList
+	class Iterator {
+	private:
+		Node<DataType>* current;
+
+	public:
+		Iterator(Node<DataType>* startNode) : current(startNode) {}
+
+		DataType operator*() const {
+			return current->_data;
+		}
+
+		Iterator operator+ (int n) const {
+			Iterator temp = *this;
+			for (int i = 0; i < n && temp.current; ++i) {
+				temp.current = temp.current->_pNext;
+			}
+			return temp;
+		}
+
+
+		void operator++() {
+			if (current) {
+				current = current->_pNext;
+			}
+		}
+
+		bool operator!=(const Iterator& other) const {
+			return current != other.current;
+		}
+	};
+
+	Iterator begin() const {
+		return Iterator(_pHead);
+	}
+
+	Iterator end() const {
+		return Iterator(NULL);
+	}
+
+
+
 };
 
 
@@ -340,7 +378,7 @@ void LinkedList<DataType>::removeAfter(DataType q) {
 
 
 template<class DataType>
-void LinkedList<DataType>::removeIf(bool (*func)(DataType)) {
+void LinkedList<DataType>::removeIf(std::function<bool(DataType)> func) {
 	Node<DataType>* current = _pHead;
 	Node<DataType>* previous = NULL;
 
