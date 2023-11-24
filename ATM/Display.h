@@ -1,14 +1,13 @@
 ﻿#pragma once
 #include <iostream>
-#include<Windows.h>
+#include <Windows.h>
 #include "Defines.h"
 
 
 
-using namespace std;
+using std::cout;
 
-template <typename DataType>
-void prshort(DataType output, short color = 7);
+
 
 
 
@@ -140,49 +139,6 @@ void createBox(short x1, short y1, int w, short h, short color) {
 	setTextBGColor(BLACK);
 }
 
-char getKeyPressed()
-{
-	HANDLE hStdin;
-	DWORD cNumRead;
-	INPUT_RECORD irInBuf[128];
-	short counter = 0;
-
-	hStdin = GetStdHandle(STD_INPUT_HANDLE);
-
-	if (hStdin == INVALID_HANDLE_VALUE)
-	{
-		std::cerr << "GetStdHandle returned invalid handle" << std::endl;
-		return '\0';
-	}
-
-	while (counter++ <= 128)
-	{
-		if (!ReadConsoleInput(hStdin, irInBuf, 128, &cNumRead))
-		{
-			std::cerr << "ReadConsoleInput failed" << std::endl;
-			return '\0';
-		}
-
-		for (unsigned short i = 0; i < cNumRead; i++)
-		{
-			if (irInBuf[i].EventType == KEY_EVENT)  // Kiểm tra sự kiện từ bàn phím
-			{
-				KEY_EVENT_RECORD ker = irInBuf[i].Event.KeyEvent;
-
-				// Kiểm tra xem phím có được nhấn hay không (không phải là sự kiện phím được thả ra)
-				if (ker.bKeyDown)
-				{
-					return ker.uChar.AsciiChar;  // Trả về kí tự tương ứng với phím được nhấn
-				}
-			}
-		}
-	}
-
-	return '\0';  // Trả về '\0' nếu không có phím nào được nhấn
-}
-
-
-
 
 void clrscr() {
 	system("cls");
@@ -196,11 +152,3 @@ void resetTextBGColor() {
 	setTextBGColor(BLACK);
 }
 
-
-
-template <typename DataType>
-void prshort(DataType output, short color) {
-	setTextColor(color);
-	cout << output;
-	resetTextColor();
-}

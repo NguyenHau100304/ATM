@@ -7,6 +7,7 @@
 #include <ctime>
 using std::string;
 using std::cout;
+using std::to_string;
 
 class Name {
 	string _fullname;

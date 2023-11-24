@@ -1156,13 +1156,14 @@ LOGIN:
 					cout << "LOGIN - Enter";
 					Beep(800, 50);
 					Sleep(50);
-					adminMenu();
 					wrongTime = 0;
+					adminMenu();
 					return;
 				}
 				else {
 					if (++wrongTime == 3) {
 						waiting(30);
+						pw.clear();
 						goto LOGIN;
 					}
 					else if (wrongTime == 4) {
@@ -2568,8 +2569,8 @@ LOGIN:
 					cout << "LOGIN - Enter";
 					Beep(800, 50);
 					Sleep(50);
-					userMenu(user);
 					wrongTime = 0;
+					userMenu(user);
 					return;
 				}
 				else {
@@ -2583,11 +2584,11 @@ LOGIN:
 						listIdBlocked.~LinkedList();
 						setTextBGColor(RED);
 						setTextColor(YELLOW);
-						gotoxy(userInputX, userInputY - 5);
+						gotoxy(userInputX - 2, userInputY - 5);
 						cout << "!!!BAN DA NHAP SAI QUA NHIEU LAN!!!";
-						gotoxy(userInputX, userInputY - 4);
-						cout << " DE DAM BAO AN TOAN CHO KHACH HANG";
-						gotoxy(userInputX, userInputY - 3);
+						gotoxy(userInputX - 2, userInputY - 4);
+						cout << "!DE DAM BAO AN TOAN CHO KHACH HANG!";
+						gotoxy(userInputX - 2, userInputY - 3);
 						cout << "********TAI KHOAN DA BI KHOA*******";
 						while (++wrongTime <= 25) {
 							Beep(1200, 200);
