@@ -679,6 +679,19 @@ __BACK__:
 				return;
 			}
 			if (c == '\r' && !inputId.empty()) {
+				if (inputId.length() < 14) {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					cout << "ID phai co du 14 chu so";
+					Beep(1000, 200);
+					showCursor(false);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                        ";
+					showCursor(true);
+					continue;
+				}
 				User Temp = listAccount.getUserById(inputId);
 				if (Temp.getId() != "00000000000000") {
 					createBox(hoverText.x, hoverText.y + 1, 29, 6, YELLOW);
@@ -842,6 +855,19 @@ __BACK__:
 				return;
 			}
 			if (c == '\r' && !inputId.empty()) {
+				if (inputId.length() < 14) {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					cout << "ID phai co du 14 chu so";
+					Beep(1000, 200);
+					showCursor(false);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                        ";
+					showCursor(true);
+					continue;
+				}
 				User Temp = listAccount.getUserById(inputId);
 				bool isNotBlock = false;
 				if (Temp.getId() != "00000000000000") {
@@ -1294,6 +1320,7 @@ __INIT__:
 			}
 			if (c == '\r') {
 				if (inputId.empty()) {
+					
 					Beep(1000, 200);
 					setTextBGColor(LIGHT_GREEN);
 					setTextColor(RED);
@@ -1675,6 +1702,19 @@ __BACK__:
 				return true;
 			}
 			if (c == '\r' && !inputId.empty()) {
+				if (inputId.length() < 14) {
+					gotoxy(hoverText.x, hoverText.y + 1);
+					setTextBGColor(LIGHT_GREEN);
+					setTextColor(RED);
+					cout << "ID phai co du 14 chu so";
+					Beep(1000, 200);
+					showCursor(false);
+					_getch();
+					gotoxy(hoverText.x, hoverText.y + 1);
+					cout << "                        ";
+					showCursor(true);
+					continue;
+				}
 				User Temp = listAccount.getUserById(inputId);
 				bool isBlock = false;
 				if (Temp.getId() != "00000000000000" && inputId != user._id) {
@@ -2706,12 +2746,15 @@ LOGIN:
 			}
 
 			if (c == '\r') {
-				if (inputId.empty()) {
+				if (inputId.empty() || inputId.length() < 14) {
 					Beep(1000, 200);
 					setTextBGColor(LIGHT_GREEN);
 					setTextColor(RED);
 					gotoxy(userInputX - 2, userInputY + 1);
-					cout << "Khong duoc bo trong ID!";
+					if (inputId.empty())
+						cout << "Khong duoc bo trong USER!";
+					else
+						cout << "ID phai du 14 chu so!";
 					showCursor(false);
 					_getch();
 					showCursor(true);
