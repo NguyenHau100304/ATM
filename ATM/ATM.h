@@ -1591,13 +1591,13 @@ __INIT__:
 					setTextColor(RED);
 					
 					if (money < 50000)
-						cout << "Tai khoan cua ban khong du de rut";
-					else if (money % 50000 != 0)
-						cout << "So tien phai la boi cua 50.000";
+						cout << "So tien rut it nhat la 50.000";
 					else if (money > user.getAmount().getAmount())
 						cout << "Ban khong du so du";
 					else if (user.getAmount().getAmount() - money < 50000)
 						cout << "So du con lai phai it nhat 50.000VND";
+					else if (money % 50000 != 0)
+						cout << "So tien phai la boi cua 50.000";
 
 					Beep(1000, 200);
 					_getch();
