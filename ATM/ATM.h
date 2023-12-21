@@ -1208,6 +1208,7 @@ LOGIN:
 							Beep(1200, 200);
 							Sleep(100);
 						}
+						exit(0);
 					}
 					else {
 						Beep(1000, 200);
